@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://bhggujv4qwsqn"]
+
+[ext_resource type="Script" uid="uid://m3bcthvanlrx" path="res://Scenes/Projectiles/FlameSpirit.gd" id="1_jfywr"]
+[ext_resource type="Texture2D" uid="uid://bav4tlypl5e7s" path="res://Assets/Sprites/Projectiles/fireBall.png" id="2_78cl1"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_rf0ae"]
+radius = 6.0
+
+[node name="FlameSpirit" type="Area2D" unique_id=1872449007]
+collision_layer = 2
+collision_mask = 8
+script = ExtResource("1_jfywr")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1816570615]
+texture = ExtResource("2_78cl1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2007092357]
+shape = SubResource("CircleShape2D_rf0ae")
+debug_color = Color(0.9953105, 0.064773664, 5.7756904e-07, 0.41960785)
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=1413545640]
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="screen_exited" from="VisibleOnScreenNotifier2D" to="." method="_on_visible_on_screen_notifier_2d_screen_exited"]

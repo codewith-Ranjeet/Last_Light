@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://bqu3062usg4yq"]
+
+[ext_resource type="PackedScene" uid="uid://ctf8luwk3j587" path="res://Scenes/Player/player.tscn" id="1_jjgbg"]
+[ext_resource type="PackedScene" uid="uid://bd0skjdo5nrb8" path="res://Scenes/LightHouse/LightHouse.tscn" id="1_jjvhh"]
+[ext_resource type="PackedScene" uid="uid://bogam2c4t18g" path="res://Scenes/GameManager/GameManager.tscn" id="4_kry3j"]
+[ext_resource type="Script" uid="uid://8bove0iue3ii" path="res://Scenes/GameManager/GameManager.gd" id="5_21xkr"]
+[ext_resource type="PackedScene" uid="uid://c7dpmqow5f6lt" path="res://Scenes/EnemySpawner/EnemySpawner.tscn" id="5_kry3j"]
+
+[node name="Main" type="Node2D" unique_id=1713128769]
+position = Vector2(-1, -3)
+
+[node name="Player" parent="." unique_id=1536178064 instance=ExtResource("1_jjgbg")]
+position = Vector2(35, 3)
+collision_mask = 3
+
+[node name="LightHouse" parent="." unique_id=1774040452 instance=ExtResource("1_jjvhh")]
+
+[node name="EnemySpawner" parent="." unique_id=1744062053 instance=ExtResource("5_kry3j")]
+
+[node name="GameManager" parent="." unique_id=1083812834 instance=ExtResource("4_kry3j")]
+script = ExtResource("5_21xkr")

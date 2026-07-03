@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://mmtul6ypywxf"]
+
+[ext_resource type="Texture2D" uid="uid://blgaaocyit7qk" path="res://Assets/Sprites/Enimes/ShadowCrawler.png" id="1_c6rjy"]
+[ext_resource type="Script" uid="uid://8yiaxp1xv84a" path="res://Scenes/Enemies/ShadowCrawler.gd" id="2_57rw3"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_rf0ae"]
+
+[node name="ShadowCrawler" type="CharacterBody2D" unique_id=287785375 groups=["enemy"]]
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("2_57rw3")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1560084707]
+texture_filter = 1
+texture = ExtResource("1_c6rjy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=645470253 groups=["enemy"]]
+shape = SubResource("CircleShape2D_rf0ae")
