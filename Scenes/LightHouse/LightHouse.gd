@@ -1,6 +1,6 @@
 extends StaticBody2D
 
-@export var max_health = 1000
+@export var max_health = 10000
 
 var health = max_health
 var destroyed = false
@@ -46,12 +46,10 @@ func _on_area_2d_body_exited(body):
 func _on_repair_area_body_entered(body: Node2D) -> void:
 	if body.name == "Player":
 		player_near = true
-		print("press E to repair")
 
 func _on_repair_area_body_exited(body: Node2D) -> void:
 	if body.name == "Player":
 		player_near = false
-		print("left Repair area")
 
 func repair(amount):
 	health = min(health + amount, max_health)

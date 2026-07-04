@@ -64,7 +64,7 @@ func start_dusk():
 func start_dawn():
 	current_state = GameState.DAWN
 	time_elapsed = 0
+	enemy_spawner.can_spawn = false
 	print("===== DAWN =====")
 	for enemy in get_tree().get_nodes_in_group("enemy"):
-		print(enemy.name)
 		enemy.retreat()

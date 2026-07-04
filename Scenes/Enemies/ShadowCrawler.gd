@@ -5,6 +5,9 @@ extends CharacterBody2D
 @export var attack_interval = 1.0
 @export var max_health = 20
 
+const PLAY_AREA_LIMIT = 500
+const VEIL_LIMIT = 650
+
 var target
 var attacking = false
 var tower = null
@@ -21,7 +24,7 @@ func _physics_process(delta):
 	if retreating:
 		velocity = retreat_direction * speed
 		move_and_slide()
-		if !get_viewport_rect().has_point(global_position):
+		if reached_veil():
 			queue_free()
 		return
 	
@@ -50,12 +53,10 @@ func start_attacking(target):
 	attacking = true
 	tower = target
 	attack_timer = 0.0
-	#print("attack start")
 	
 func stop_attacking():
 	attacking = false
 	tower = null
-	#print("attack stop")
 
 #---------------Damage---------------
 func damage_to_enemy(amount):
@@ -71,3 +72,11 @@ func retreat():
 	retreat_direction = (global_position - target.global_position).normalized()
 	retreating = true
 	attacking = false
+
+#offscreen retreat handling
+func reached_veil():
+	return (
+		abs(global_position.x) > VEIL_LIMIT
+		or
+		abs(global_position.y) > VEIL_LIMIT
+	)
