@@ -1,15 +1,15 @@
 [gd_scene format=3 uid="uid://bd0skjdo5nrb8"]
 
 [ext_resource type="Script" uid="uid://cs104bfqenrit" path="res://Scenes/LightHouse/LightHouse.gd" id="1_5wtg8"]
-[ext_resource type="Texture2D" uid="uid://brkn1q2ya421o" path="res://Assets/Sprites/LightHouse/LightHouse2.png" id="1_82w5f"]
+[ext_resource type="Texture2D" uid="uid://cu8ft04kgnmdj" path="res://Assets/Sprites/LightHouse/LightHouse5.png" id="2_5wtg8"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dl54f"]
-radius = 18.0
-height = 60.0
+radius = 24.0
+height = 82.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5wtg8"]
-radius = 18.0
-height = 60.0
+radius = 21.0
+height = 86.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ywwub"]
 radius = 50.0
@@ -21,24 +21,25 @@ script = ExtResource("1_5wtg8")
 texture_filter = 1
 position = Vector2(-0.99999905, 0)
 scale = Vector2(0.671875, 0.81578946)
-texture = ExtResource("1_82w5f")
+texture = ExtResource("2_5wtg8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1408161403]
-position = Vector2(-3, 4)
+visible = false
+position = Vector2(-1, 2)
 shape = SubResource("CapsuleShape2D_dl54f")
 
 [node name="DamageArea" type="Area2D" parent="." unique_id=385888947]
 collision_mask = 9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea" unique_id=246551000]
-position = Vector2(-3, 4)
+visible = false
+position = Vector2(0, 1)
 shape = SubResource("CapsuleShape2D_5wtg8")
 debug_color = Color(0.9503649, 0.20072362, 0.26560432, 0.41960785)
 
 [node name="RepairArea" type="Area2D" parent="." unique_id=525854272]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RepairArea" unique_id=1575695545]
-position = Vector2(-3, 3)
 shape = SubResource("CircleShape2D_ywwub")
 debug_color = Color(1.732707e-06, 0.64115316, 0.34372514, 0.41960785)
 

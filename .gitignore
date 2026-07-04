@@ -1,0 +1,13 @@
+# Godot 4
+.godot/
+
+# Export/build folders
+build/
+exports/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Godot import files
+*.import

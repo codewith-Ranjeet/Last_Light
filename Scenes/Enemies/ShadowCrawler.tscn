@@ -14,5 +14,5 @@ script = ExtResource("2_57rw3")
 texture_filter = 1
 texture = ExtResource("1_c6rjy")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=645470253 groups=["enemy"]]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=645470253]
 shape = SubResource("CircleShape2D_rf0ae")

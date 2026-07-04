@@ -10,10 +10,10 @@ enum GameState {
 @onready var enemy_spawner = $"../EnemySpawner"
 @onready var repair = $"../LightHouse"
 
-@export var day_duration = 5.0
-@export var dusk_duration = 1.0
-@export var night_duration = 5.0
-@export var dawn_duration = 1.0
+@export var day_duration = 20.0
+@export var dusk_duration = 5.0
+@export var night_duration = 20.0
+@export var dawn_duration = 5.0
 
 var current_state = GameState.DAY
 var time_elapsed = 0.0
@@ -65,3 +65,6 @@ func start_dawn():
 	current_state = GameState.DAWN
 	time_elapsed = 0
 	print("===== DAWN =====")
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		print(enemy.name)
+		enemy.retreat()

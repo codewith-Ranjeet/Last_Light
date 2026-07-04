@@ -10,11 +10,21 @@ var attacking = false
 var tower = null
 var attack_timer = 0.0
 var health = max_health
+var retreating = false
+var retreat_direction = Vector2.ZERO
 
 func _ready():
 	target = get_parent().get_node("LightHouse")
 
 func _physics_process(delta):
+	#retreat
+	if retreating:
+		velocity = retreat_direction * speed
+		move_and_slide()
+		if !get_viewport_rect().has_point(global_position):
+			queue_free()
+		return
+	
 	#stop movement while attacking
 	if attacking:
 		velocity = Vector2.ZERO
@@ -55,3 +65,9 @@ func damage_to_enemy(amount):
 		
 func die():
 	queue_free()
+
+#----------------Retreat-------------
+func retreat():
+	retreat_direction = (global_position - target.global_position).normalized()
+	retreating = true
+	attacking = false
