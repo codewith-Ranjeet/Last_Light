@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://blgaaocyit7qk" path="res://Assets/Sprites/Enimes/ShadowCrawler.png" id="1_c6rjy"]
 [ext_resource type="Script" uid="uid://8yiaxp1xv84a" path="res://Scenes/Enemies/ShadowCrawler.gd" id="2_57rw3"]
+[ext_resource type="PackedScene" uid="uid://bax2fircq5wsn" path="res://Scenes/Beacon/Beacon.tscn" id="2_460st"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_rf0ae"]
 
@@ -9,6 +10,7 @@
 collision_layer = 8
 collision_mask = 2
 script = ExtResource("2_57rw3")
+beacon_scene = ExtResource("2_460st")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1560084707]
 texture_filter = 1

@@ -4,6 +4,7 @@ extends CharacterBody2D
 @export var damage = 10
 @export var attack_interval = 1.0
 @export var max_health = 20
+@export var beacon_scene : PackedScene
 
 const PLAY_AREA_LIMIT = 500
 const VEIL_LIMIT = 650
@@ -65,6 +66,9 @@ func damage_to_enemy(amount):
 		die()
 		
 func die():
+	var beacon = beacon_scene.instantiate()
+	get_parent().add_child(beacon)
+	beacon.global_position = global_position
 	queue_free()
 
 #----------------Retreat-------------

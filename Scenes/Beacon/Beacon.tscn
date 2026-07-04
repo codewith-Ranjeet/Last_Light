@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://bax2fircq5wsn"]
+
+[ext_resource type="Script" uid="uid://du7ioc5i3bkmj" path="res://Scenes/Beacon/Beacon.gd" id="1_bls5g"]
+[ext_resource type="Texture2D" uid="uid://lbmwot52qmj7" path="res://Assets/Sprites/Beacon/beacon1.png" id="2_5c650"]
+
+[node name="Beacon" type="Area2D" unique_id=1189743354]
+script = ExtResource("1_bls5g")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=421617352]
+texture_filter = 1
+texture = ExtResource("2_5c650")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=154957934]
