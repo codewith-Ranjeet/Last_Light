@@ -6,6 +6,9 @@
 [ext_resource type="Script" uid="uid://8bove0iue3ii" path="res://Scenes/GameManager/GameManager.gd" id="5_21xkr"]
 [ext_resource type="PackedScene" uid="uid://c7dpmqow5f6lt" path="res://Scenes/EnemySpawner/EnemySpawner.tscn" id="5_kry3j"]
 [ext_resource type="Script" uid="uid://crrc376iimuse" path="res://Scenes/HUD.gd" id="6_21xkr"]
+[ext_resource type="Texture2D" uid="uid://lbmwot52qmj7" path="res://Assets/Sprites/Beacon/beacon1.png" id="7_6bp64"]
+[ext_resource type="Texture2D" uid="uid://7658lhymlycf" path="res://Assets/Sprites/Beacon/HPBackground2.png" id="7_ynf5e"]
+[ext_resource type="Texture2D" uid="uid://bqqfcyswgr3t4" path="res://Assets/Sprites/Beacon/HPBarFill2.png" id="8_hptm8"]
 
 [node name="Main" type="Node2D" unique_id=1713128769]
 position = Vector2(-1, -3)
@@ -37,21 +40,44 @@ layout_mode = 2
 custom_minimum_size = Vector2(200, 24)
 layout_mode = 2
 
-[node name="LightHouseHPBar" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer/HPContainer" unique_id=1014272151]
+[node name="HPBackground" type="TextureRect" parent="HUD/MarginContainer/VBoxContainer/HPContainer" unique_id=2037511780]
 layout_mode = 0
-offset_right = 200.0
-offset_bottom = 24.0
-show_percentage = false
+offset_right = 240.0
+offset_bottom = 35.0
+texture = ExtResource("7_ynf5e")
+
+[node name="FillMask" type="Control" parent="HUD/MarginContainer/VBoxContainer/HPContainer" unique_id=1571483124]
+clip_contents = true
+anchors_preset = 0
+offset_left = 20.0
+offset_top = 4.0
+offset_right = 217.0
+offset_bottom = 30.0
+
+[node name="HPFill" type="TextureRect" parent="HUD/MarginContainer/VBoxContainer/HPContainer/FillMask" unique_id=657198269]
+layout_mode = 0
+offset_left = 4.0
+offset_top = -1.0
+offset_right = 196.0
+offset_bottom = 23.0
+texture = ExtResource("8_hptm8")
 
 [node name="HPText" type="Label" parent="HUD/MarginContainer/VBoxContainer/HPContainer" unique_id=748821860]
 visible = false
 layout_mode = 0
-offset_right = 200.0
+offset_right = 192.0
 offset_bottom = 24.0
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BeaconCount" type="Label" parent="HUD/MarginContainer/VBoxContainer" unique_id=1589439079]
+[node name="BeaconContainer" type="HBoxContainer" parent="HUD/MarginContainer/VBoxContainer" unique_id=1123718142]
+layout_mode = 2
+
+[node name="BeaconIcon" type="TextureRect" parent="HUD/MarginContainer/VBoxContainer/BeaconContainer" unique_id=1501522454]
+layout_mode = 2
+texture = ExtResource("7_6bp64")
+
+[node name="BeaconCount" type="Label" parent="HUD/MarginContainer/VBoxContainer/BeaconContainer" unique_id=1589439079]
 layout_mode = 2
 
 [node name="Phase" type="Label" parent="HUD/MarginContainer/VBoxContainer" unique_id=1731336526]
