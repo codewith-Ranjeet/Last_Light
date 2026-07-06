@@ -15,6 +15,7 @@ enum GameState {
 @export var night_duration = 20.0
 @export var dawn_duration = 5.0
 
+var current_phase = "Night"
 var current_state = GameState.DAY
 var time_elapsed = 0.0
 
@@ -43,6 +44,7 @@ func _ready():
 	start_night()
 
 func start_day():
+	current_phase = "☀ Day"
 	current_state = GameState.DAY
 	time_elapsed = 0.0
 	enemy_spawner.can_spawn = false
@@ -50,6 +52,7 @@ func start_day():
 	print("===== DAY =====")
 
 func start_night():
+	current_phase = "🌙 Night"
 	current_state = GameState.NIGHT
 	time_elapsed = 0.0
 	enemy_spawner.can_spawn = true
@@ -57,11 +60,13 @@ func start_night():
 	print("===== NIGHT =====")
 
 func start_dusk():
+	current_phase = "🌇 Dusk"
 	current_state = GameState.DUSK
 	time_elapsed = 0
 	print("===== DUSK =====")
 
 func start_dawn():
+	current_phase = "🌅 Dawn"
 	current_state = GameState.DAWN
 	time_elapsed = 0
 	enemy_spawner.can_spawn = false

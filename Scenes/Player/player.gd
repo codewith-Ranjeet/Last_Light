@@ -8,6 +8,7 @@ var keeper_down = preload("res://Assets/Sprites/Player/keeper_down.png")
 var keeper_up = preload("res://Assets/Sprites/Player/keeper_up.png")
 var keeper_left = preload("res://Assets/Sprites/Player/keeper_left.png")
 var keeper_right = preload("res://Assets/Sprites/Player/keeper_right.png")
+var beacons = 0
 
 #summon flame (keep ready in memory)
 var flame_scene = preload("res://Scenes/Projectiles/FlameSpirit.tscn")
@@ -52,3 +53,8 @@ func shoot():
 
 	flame.global_position = global_position + shoot_direction * 20
 	flame.direction = shoot_direction
+
+#--------------Beacon----------------
+func collect_beacon(amount):
+	beacons += amount
+	print("Beacons:", beacons)

@@ -1,25 +1,21 @@
 extends StaticBody2D
 
-@export var max_health = 10000
+@export var max_health = 100
+@onready var player = get_parent().get_node("Player")
 
 var health = max_health
 var destroyed = false
 var player_near = false
 var repair_timer = 0.0
 var can_repair = false
-const REPAIR_INTERVAL = 0.2
 const REPAIR_AMOUNT = 5
 
 func _physics_process(delta):
+#------------Repair---------------
 	if !can_repair:
 		return
-	if player_near and Input.is_action_pressed("repair"):
-		repair_timer += delta
-		if repair_timer >= REPAIR_INTERVAL:
-			repair(REPAIR_AMOUNT)
-			repair_timer = 0.0
-	else:
-		repair_timer = 0.0
+	if player_near and Input.is_action_just_pressed("repair"):
+		repair(REPAIR_AMOUNT)
 
 #-------------Damage & Attack------------
 func damage(amount):
@@ -52,5 +48,14 @@ func _on_repair_area_body_exited(body: Node2D) -> void:
 		player_near = false
 
 func repair(amount):
-	health = min(health + amount, max_health)
-	print("Tower HP:", health)
+	if destroyed:
+		return
+	if health >= max_health:
+		print("Health Full")
+		return
+	if player.beacons > 0:
+		player.beacons -= 1
+		health = min(health + amount, max_health)
+		print("Tower HP:", health)
+	else:
+		print("Need more Beacon")

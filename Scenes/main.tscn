@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://bogam2c4t18g" path="res://Scenes/GameManager/GameManager.tscn" id="4_kry3j"]
 [ext_resource type="Script" uid="uid://8bove0iue3ii" path="res://Scenes/GameManager/GameManager.gd" id="5_21xkr"]
 [ext_resource type="PackedScene" uid="uid://c7dpmqow5f6lt" path="res://Scenes/EnemySpawner/EnemySpawner.tscn" id="5_kry3j"]
+[ext_resource type="Script" uid="uid://crrc376iimuse" path="res://Scenes/HUD.gd" id="6_21xkr"]
 
 [node name="Main" type="Node2D" unique_id=1713128769]
 position = Vector2(-1, -3)
@@ -19,3 +20,39 @@ collision_mask = 3
 
 [node name="GameManager" parent="." unique_id=1083812834 instance=ExtResource("4_kry3j")]
 script = ExtResource("5_21xkr")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1316291278]
+script = ExtResource("6_21xkr")
+
+[node name="MarginContainer" type="MarginContainer" parent="HUD" unique_id=1862076253]
+offset_right = 57.0
+offset_bottom = 51.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD/MarginContainer" unique_id=1931699647]
+layout_mode = 2
+
+[node name="HPContainer" type="Control" parent="HUD/MarginContainer/VBoxContainer" unique_id=1423263069]
+custom_minimum_size = Vector2(200, 24)
+layout_mode = 2
+
+[node name="LightHouseHPBar" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer/HPContainer" unique_id=1014272151]
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 24.0
+show_percentage = false
+
+[node name="HPText" type="Label" parent="HUD/MarginContainer/VBoxContainer/HPContainer" unique_id=748821860]
+visible = false
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 24.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BeaconCount" type="Label" parent="HUD/MarginContainer/VBoxContainer" unique_id=1589439079]
+layout_mode = 2
+
+[node name="Phase" type="Label" parent="HUD/MarginContainer/VBoxContainer" unique_id=1731336526]
+layout_mode = 2
