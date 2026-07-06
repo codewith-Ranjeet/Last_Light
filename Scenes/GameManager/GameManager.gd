@@ -8,18 +8,26 @@ enum GameState {
 }
 
 @onready var enemy_spawner = $"../EnemySpawner"
-@onready var repair = $"../LightHouse"
+@onready var lighthouse = $"../LightHouse"
 
-@export var day_duration = 20.0
-@export var dusk_duration = 5.0
-@export var night_duration = 20.0
-@export var dawn_duration = 5.0
+@export var day_duration: float = 20.0
+@export var dusk_duration: float = 5.0
+@export var night_duration: float = 20.0
+@export var dawn_duration: float = 5.0
 
-var current_phase = "Night"
-var current_state = GameState.DAY
-var time_elapsed = 0.0
+var current_phase: String = "🌙 Night"
+var current_state: GameState = GameState.DAY
+var time_elapsed: float = 0.0
+var is_game_over: bool = false
+
+
+func _ready():
+	start_night()
+
 
 func _process(delta):
+	if is_game_over:
+		return
 
 	time_elapsed += delta
 
@@ -40,36 +48,58 @@ func _process(delta):
 			if time_elapsed >= dawn_duration:
 				start_day()
 
-func _ready():
-	start_night()
 
 func start_day():
 	current_phase = "☀ Day"
 	current_state = GameState.DAY
 	time_elapsed = 0.0
+
 	enemy_spawner.can_spawn = false
-	repair.can_repair = true
+	lighthouse.can_repair = true
+
 	print("===== DAY =====")
+
+
+func start_dusk():
+	current_phase = "🌇 Dusk"
+	current_state = GameState.DUSK
+	time_elapsed = 0.0
+
+	print("===== DUSK =====")
+
 
 func start_night():
 	current_phase = "🌙 Night"
 	current_state = GameState.NIGHT
 	time_elapsed = 0.0
+
 	enemy_spawner.can_spawn = true
-	repair.can_repair = false
+	lighthouse.can_repair = false
+
 	print("===== NIGHT =====")
 
-func start_dusk():
-	current_phase = "🌇 Dusk"
-	current_state = GameState.DUSK
-	time_elapsed = 0
-	print("===== DUSK =====")
 
 func start_dawn():
 	current_phase = "🌅 Dawn"
 	current_state = GameState.DAWN
-	time_elapsed = 0
+	time_elapsed = 0.0
+
 	enemy_spawner.can_spawn = false
+
 	print("===== DAWN =====")
+
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		enemy.retreat()
+
+
+func game_over():
+	if is_game_over:
+		return
+
+	is_game_over = true
+
+	print("===== GAME OVER =====")
+
+	await get_tree().process_frame
+
+	get_tree().paused = true

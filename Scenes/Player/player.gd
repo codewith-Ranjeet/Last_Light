@@ -1,60 +1,67 @@
 extends CharacterBody2D
 
-@export var speed = 100.0
+@export var speed: float = 100.0
 
 @onready var sprite = $Sprite2D
 
-var keeper_down = preload("res://Assets/Sprites/Player/keeper_down.png")
-var keeper_up = preload("res://Assets/Sprites/Player/keeper_up.png")
-var keeper_left = preload("res://Assets/Sprites/Player/keeper_left.png")
-var keeper_right = preload("res://Assets/Sprites/Player/keeper_right.png")
-var beacons = 0
+const KEEPER_DOWN = preload("res://Assets/Sprites/Player/keeper_down.png")
+const KEEPER_UP = preload("res://Assets/Sprites/Player/keeper_up.png")
+const KEEPER_LEFT = preload("res://Assets/Sprites/Player/keeper_left.png")
+const KEEPER_RIGHT = preload("res://Assets/Sprites/Player/keeper_right.png")
 
-#summon flame (keep ready in memory)
-var flame_scene = preload("res://Scenes/Projectiles/FlameSpirit.tscn")
+const FLAME_SCENE = preload("res://Scenes/Projectiles/FlameSpirit.tscn")
 
-#----------------ACTION---------------------
-func _physics_process(delta):
+var beacons: int = 0
+
+
+func _physics_process(_delta):
 
 	var direction = Input.get_vector(
 		"move_left",
 		"move_right",
 		"move_up",
-        "move_down"
+		"move_down"
 	)
 
 	velocity = direction * speed
 	move_and_slide()
 
-	var mouse_direction = get_global_mouse_position() - global_position
-	
+	update_facing_direction()
+
 	if Input.is_action_just_pressed("shoot"):
 		shoot()
-	
+
+
+func update_facing_direction():
+
+	var mouse_direction = get_global_mouse_position() - global_position
+
 	if abs(mouse_direction.x) > abs(mouse_direction.y):
 		if mouse_direction.x > 0:
-			sprite.texture = keeper_right
+			sprite.texture = KEEPER_RIGHT
 		else:
-			sprite.texture = keeper_left
+			sprite.texture = KEEPER_LEFT
 	else:
 		if mouse_direction.y > 0:
-			sprite.texture = keeper_down
+			sprite.texture = KEEPER_DOWN
 		else:
-			sprite.texture = keeper_up
+			sprite.texture = KEEPER_UP
 
-#---------------shooting---------------
+
 func shoot():
 
-	var flame = flame_scene.instantiate()
+	var flame = FLAME_SCENE.instantiate()
 
 	get_parent().add_child(flame)
 
-	var shoot_direction = (get_global_mouse_position() - global_position).normalized()
+	var shoot_direction = (
+		get_global_mouse_position() - global_position
+	).normalized()
 
 	flame.global_position = global_position + shoot_direction * 20
 	flame.direction = shoot_direction
 
-#--------------Beacon----------------
-func collect_beacon(amount):
+
+func collect_beacon(amount: int):
 	beacons += amount
 	print("Beacons:", beacons)

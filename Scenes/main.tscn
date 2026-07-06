@@ -62,14 +62,6 @@ offset_right = 196.0
 offset_bottom = 23.0
 texture = ExtResource("8_hptm8")
 
-[node name="HPText" type="Label" parent="HUD/MarginContainer/VBoxContainer/HPContainer" unique_id=748821860]
-visible = false
-layout_mode = 0
-offset_right = 192.0
-offset_bottom = 24.0
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="BeaconContainer" type="HBoxContainer" parent="HUD/MarginContainer/VBoxContainer" unique_id=1123718142]
 layout_mode = 2
 
