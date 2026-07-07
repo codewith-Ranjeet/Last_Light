@@ -1,67 +1,111 @@
 # 🌟 Last Light
 
-> **A 2D top-down survival & base-defense game built with Godot 4.**
+> **A 2D top-down survival & base-defense game built with Godot 4.7**
 
 <p align="center">
-  <img src="Readme_assets/fireball.png" width="700"/>
+  <img src="README_assets/fireball.png" width="700"/>
 </p>
 
-You play as **The Keeper**, guardian of the world's final lighthouse.
+**Last Light** is a pixel-art survival and base-defense game where you play as **The Keeper**, guardian of the world's final lighthouse.
 
-Every night, shadow creatures emerge from the surrounding darkness to extinguish the Last Light. During the day, the Keeper repairs the lighthouse and prepares for the next assault.
+As darkness engulfs the world, shadow creatures emerge every night to extinguish humanity's last source of light. Defend the lighthouse, collect Beacons from defeated enemies, repair the flame during the day, and survive increasingly dangerous nights.
 
-> 📖 **Complete story, lore, mechanics, and design ideas:** `Docs/GameDesign.md`
+> 📖 **Story, lore, and design documentation:** `Docs/GameDesign.md`
 
 ---
 
 # ✨ Current Features
 
 ## 🧍 Player
+
 - 4-direction movement
-- Mouse-aimed combat
-- Fireball projectile system
+- Mouse aiming
+- Fireball shooting
+- Directional sprites
+- Beacon inventory
+
+---
 
 ## ⚔️ Combat
-- Projectile collision detection
+
+- Projectile collision
 - Enemy health system
-- Enemy death on zero HP
+- Enemy death
+- Beacon drops on enemy death
+- Automatic beacon collection
+
+---
 
 ## 🏰 Lighthouse
-- Fixed at the center of the map
-- Collision system
+
+- Central objective
 - Health system
-- Takes damage from enemies
+- Custom HP Bar
 - Repair mechanic
-- Game Over state
+- Repairs consume Beacons
+- Cannot repair at full HP
+- Repair available only during Day
+- Game Over when destroyed
+
+---
 
 ## 👾 Enemies
-- ShadowCrawler AI
+
+### ShadowCrawler
+
 - Moves toward the lighthouse
-- Stops to attack in range
+- Stops and attacks in range
 - Periodic damage
-- Multiple enemies supported
+- Health system
+- Retreats during Dawn
+- Despawns after reaching the Veil
+- Drops Beacons on death
 
-## 🌑 Enemy Spawning
-- Automatic spawning
-- Configurable spawn interval
+---
 
-## 🌗 Day & Night Cycle
+## 🌙 Day & Night Cycle
 
 Current cycle:
 
-```
-☀️ Day
-    ↓
+```text
+☀ Day
+   ↓
 🌇 Dusk
-    ↓
+   ↓
 🌙 Night
-    ↓
+   ↓
 🌅 Dawn
-    ↓
-☀️ Day
+   ↓
+☀ Day
 ```
 
-Enemy spawning currently occurs during the **Night** phase.
+### Behaviour
+
+| Phase | Behaviour |
+|--------|-----------|
+| ☀ Day | Repair lighthouse |
+| 🌇 Dusk | Transition into darkness |
+| 🌙 Night | Enemy spawning begins |
+| 🌅 Dawn | Enemies retreat into the Veil |
+
+---
+
+## 💎 Beacon System
+
+- Beacons drop from defeated enemies
+- Automatically collected by the player
+- Stored in player inventory
+- Required to repair the lighthouse
+- One repair consumes one Beacon
+
+---
+
+## 📺 User Interface
+
+- Lighthouse custom HP Bar
+- Lighthouse HP text
+- Beacon counter
+- Current phase indicator
 
 ---
 
@@ -88,78 +132,118 @@ Enemy spawning currently occurs during the **Night** phase.
 ```text
 Assets/
     Sprites/
+    UI/
 
 Docs/
     Concepts_art/
     GameDesign.md
 
 Scenes/
+    Beacon/
     Enemies/
     EnemySpawner/
     GameManager/
+    HUD/
     LightHouse/
     Player/
     Projectiles/
-    main.tscn
 
 project.godot
 ```
 
 ---
 
-# 🗺 Development Roadmap
+# 🚧 Development Roadmap
 
-- [ ] Enemy retreat during dawn
-- [ ] Beacon resource system
-- [ ] Resource collection
-- [ ] Repair cost mechanics
+## Gameplay
+
 - [ ] Multiple enemy types
-- [ ] Progressive enemy waves
+- [ ] Progressive difficulty
+- [ ] Boss encounters
+- [ ] Lighthouse upgrades
+- [ ] Crafting & upgrades
+
+## Visuals
+
 - [ ] Dynamic lighting
-- [ ] Fog of Darkness
-- [ ] User Interface
-- [ ] Sound effects & music
+- [ ] Veil / Fog of Darkness
+- [ ] Particle effects
+- [ ] Day & Night ambience
+- [ ] Camera shake
+- [ ] Animated UI
+
+## Audio
+
+- [ ] Background music
+- [ ] Ambient sounds
+- [ ] Combat SFX
+
+## Polish
+
 - [ ] Main Menu
-- [ ] Save system
+- [ ] Pause Menu
+- [ ] Save System
+- [ ] Settings Menu
 
 ---
 
 # 🚀 Running the Project
 
 1. Clone the repository.
-2. Open using **Godot Engine 4.7** or later.
+2. Open the project with **Godot Engine 4.7** or later.
 3. Run `main.tscn`.
 
 ---
 
-# 📌 Project Status
+# 📌 Current Progress
 
-> 🚧 **Currently in Development**
+### ✅ Implemented
 
-This project is being developed while learning **Godot**, **game programming**, and **game design**.
-
-New gameplay systems and mechanics are added incrementally.
+- Player movement
+- Combat system
+- Lighthouse health & repair
+- Enemy AI
+- Day/Night cycle
+- Enemy retreat system
+- Beacon economy
+- HUD
+- Custom HP Bar
+- Game Over system
 
 ---
 
 # 📸 Screenshots
 
-### Enemy Spawn
+## Enemy Spawn
 
 <p align="center">
-  <img src="Readme_assets/shadow.png" width="700"/>
+  <img src="README_assets/shadow.png" width="700"/>
 </p>
 
 ---
 
-### Combat
+## Combat
 
 <p align="center">
-  <img src="Readme_assets/fireball.png" width="700"/>
+  <img src="README_assets/fireball.png" width="700"/>
 </p>
 
 ---
 
-# 📜 License
+## License
 
 This project is currently intended for **educational and portfolio purposes**.
+
+---
+
+## Developer Notes
+
+This project is being developed to learn:
+
+- Game Programming
+- Godot Engine
+- Gameplay Architecture
+- AI Behaviour
+- UI Systems
+- Pixel Art Workflow
+- Software Design
