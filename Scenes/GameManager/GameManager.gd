@@ -101,6 +101,7 @@ func game_over():
 	print("===== GAME OVER =====")
 	
 	hud.update_hp()
+	lighthouse.update_damage_stage()
 	await get_tree().process_frame
 
 	get_tree().paused = true

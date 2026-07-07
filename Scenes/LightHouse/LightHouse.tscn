@@ -1,45 +1,46 @@
 [gd_scene format=3 uid="uid://bd0skjdo5nrb8"]
 
 [ext_resource type="Script" uid="uid://cs104bfqenrit" path="res://Scenes/LightHouse/LightHouse.gd" id="1_5wtg8"]
-[ext_resource type="Texture2D" uid="uid://cu8ft04kgnmdj" path="res://Assets/Sprites/LightHouse/LightHouse5.png" id="2_5wtg8"]
+[ext_resource type="Texture2D" uid="uid://cgk6kapgrg24w" path="res://Assets/Sprites/LightHouse/LH100.png" id="2_5wtg8"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dl54f"]
-radius = 24.0
-height = 82.0
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_86bm4"]
+radius = 31.0
+height = 108.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5wtg8"]
-radius = 21.0
-height = 86.0
+radius = 29.0
+height = 114.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ywwub"]
-radius = 50.0
+radius = 57.14018
 
 [node name="LightHouse" type="StaticBody2D" unique_id=1774040452]
 script = ExtResource("1_5wtg8")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=849845223]
 texture_filter = 1
-position = Vector2(-0.99999905, 0)
+position = Vector2(2.3841858e-07, 0)
 scale = Vector2(0.671875, 0.81578946)
 texture = ExtResource("2_5wtg8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1408161403]
-visible = false
-position = Vector2(-1, 2)
-shape = SubResource("CapsuleShape2D_dl54f")
+position = Vector2(1, 14)
+shape = SubResource("CapsuleShape2D_86bm4")
 
 [node name="DamageArea" type="Area2D" parent="." unique_id=385888947]
 collision_mask = 9
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea" unique_id=246551000]
 visible = false
-position = Vector2(0, 1)
+position = Vector2(0, 9)
 shape = SubResource("CapsuleShape2D_5wtg8")
 debug_color = Color(0.9503649, 0.20072362, 0.26560432, 0.41960785)
 
 [node name="RepairArea" type="Area2D" parent="." unique_id=525854272]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RepairArea" unique_id=1575695545]
+visible = false
+position = Vector2(0, 10)
 shape = SubResource("CircleShape2D_ywwub")
 debug_color = Color(1.732707e-06, 0.64115316, 0.34372514, 0.41960785)
 
