@@ -3,7 +3,7 @@
 > **A 2D top-down survival & base-defense game built with Godot 4.7**
 
 <p align="center">
-  <img src="README_assets/fireball.png" width="700"/>
+  <img src="Readme_assets/fireball.png" width="700"/>
 </p>
 
 **Last Light** is a pixel-art survival and base-defense game where you play as **The Keeper**, guardian of the world's final lighthouse.
@@ -217,7 +217,7 @@ project.godot
 ## Enemy Spawn
 
 <p align="center">
-  <img src="README_assets/shadow.png" width="700"/>
+  <img src="Readme_assets/shadow.png" width="700"/>
 </p>
 
 ---
@@ -225,7 +225,7 @@ project.godot
 ## Combat
 
 <p align="center">
-  <img src="README_assets/fireball.png" width="700"/>
+  <img src="Readme_assets/fireball.png" width="700"/>
 </p>
 
 ---
