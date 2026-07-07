@@ -15,11 +15,13 @@ extends CanvasLayer
 
 func _process(_delta):
 
+	update_hp()
+	beacon_label.text = "Beacons: %d" % player.beacons
+	phase_label.text = game_manager.current_phase
+
+#----------------Hp update-----------------
+func update_hp():
 	var percent = lighthouse.health / float(lighthouse.max_health)
 
 	fill_mask.position.x = fill_start_x
 	fill_mask.size.x = full_fill_width * percent
-
-	beacon_label.text = "Beacons: %d" % player.beacons
-
-	phase_label.text = game_manager.current_phase

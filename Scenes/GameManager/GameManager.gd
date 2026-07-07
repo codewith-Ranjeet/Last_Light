@@ -9,7 +9,7 @@ enum GameState {
 
 @onready var enemy_spawner = $"../EnemySpawner"
 @onready var lighthouse = $"../LightHouse"
-
+@onready var hud = $"../HUD"
 @export var day_duration: float = 20.0
 @export var dusk_duration: float = 5.0
 @export var night_duration: float = 20.0
@@ -99,7 +99,8 @@ func game_over():
 	is_game_over = true
 
 	print("===== GAME OVER =====")
-
+	
+	hud.update_hp()
 	await get_tree().process_frame
 
 	get_tree().paused = true
