@@ -26,9 +26,13 @@ var choice_subtitle: Label
 var choice_buttons: VBoxContainer
 var displayed_choice_phase: int = -1
 var displayed_choice_ids: Array[StringName] = []
+var ending_overlay: Control
+var ending_title: Label
+var ending_body: Label
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	var fill_style := StyleBoxFlat.new()
 	fill_style.bg_color = Color(0.45, 0.82, 1.0, 0.92)
 	fill_style.corner_radius_top_left = 2
@@ -45,6 +49,7 @@ func _ready() -> void:
 	expedition_notice = _make_bottom_banner(-112, -42, -380, 380)
 	campaign_status = _make_status_banner()
 	_create_choice_overlay()
+	_create_ending_overlay()
 	if game_manager != null:
 		game_manager.story_clue_discovered.connect(_on_story_clue_discovered)
 		game_manager.shard_secured.connect(_on_shard_secured)
@@ -82,6 +87,14 @@ func _process(_delta):
 		var spawner: Node = game_manager.get_current_spawner()
 		if spawner != null and spawner.has_method("get_progress_text"):
 			campaign_status.text += "  ·  " + spawner.get_progress_text()
+	elif game_manager.current_state == game_manager.Phase.BOSS:
+		var boss: Node = game_manager.get_current_boss()
+		if boss != null and boss.has_method("get_health_ratio"):
+			campaign_status.text += "  ·  %s · Shepherd %d%%" % [boss.get_encounter_phase_name(), roundi(boss.get_health_ratio() * 100.0)]
+			var attack_status: String = boss.get_attack_status()
+			if attack_status != "":
+				campaign_status.text += "  ·  " + attack_status
+	_refresh_ending_overlay()
 
 #----------------Hp update-----------------
 func update_hp():
@@ -188,7 +201,8 @@ func _on_light_suppression_changed(is_suppressed: bool) -> void:
 
 
 func _on_darkness_pulse_started(duration: float) -> void:
-	_show_notice("The Bell-Taker's darkness pulse disrupts Focus for %.1f seconds." % duration, 3.0)
+	var source := "The Hollow Shepherd's blackout" if game_manager.current_state == game_manager.Phase.BOSS else "The Bell-Taker's darkness pulse"
+	_show_notice("%s disrupts Focus for %.1f seconds." % [source, duration], 3.0)
 
 
 func _create_choice_overlay() -> void:
@@ -297,3 +311,67 @@ func _on_night_event_changed(event_id: StringName, duration: float) -> void:
 		_show_notice("Eclipse Surge · Lighthouse sweep range reduced for %.0f seconds." % duration, 4.0)
 	elif event_id == &"red_moon":
 		_show_notice("Red Moon · Two extra threats approach; defeated enemies carry two Beacons." , 4.0)
+
+
+func _create_ending_overlay() -> void:
+	ending_overlay = Control.new()
+	ending_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ending_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	ending_overlay.process_mode = Node.PROCESS_MODE_ALWAYS
+	ending_overlay.visible = false
+	ending_overlay.z_index = 100
+	add_child(ending_overlay)
+	var shade := ColorRect.new()
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.color = Color(0.01, 0.015, 0.025, 0.86)
+	shade.mouse_filter = Control.MOUSE_FILTER_STOP
+	ending_overlay.add_child(shade)
+	var panel := PanelContainer.new()
+	panel.anchor_left = 0.5
+	panel.anchor_right = 0.5
+	panel.anchor_top = 0.5
+	panel.anchor_bottom = 0.5
+	panel.offset_left = -250
+	panel.offset_right = 250
+	panel.offset_top = -140
+	panel.offset_bottom = 140
+	panel.add_theme_stylebox_override("panel", _choice_panel_style())
+	ending_overlay.add_child(panel)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 14)
+	panel.add_child(content)
+	ending_title = Label.new()
+	ending_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ending_title.add_theme_font_size_override("font_size", 25)
+	ending_title.add_theme_color_override("font_color", Color(0.97, 0.86, 0.62))
+	content.add_child(ending_title)
+	ending_body = Label.new()
+	ending_body.custom_minimum_size = Vector2(450, 110)
+	ending_body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ending_body.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	ending_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ending_body.add_theme_font_size_override("font_size", 15)
+	ending_body.add_theme_color_override("font_color", Color(0.86, 0.89, 0.87))
+	content.add_child(ending_body)
+	var restart_button := Button.new()
+	restart_button.text = "Restart Campaign"
+	restart_button.custom_minimum_size = Vector2(180, 38)
+	restart_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	restart_button.pressed.connect(_on_restart_campaign_pressed)
+	content.add_child(restart_button)
+
+
+func _refresh_ending_overlay() -> void:
+	if game_manager == null or not is_instance_valid(ending_overlay):
+		return
+	var is_terminal: bool = game_manager.current_state == game_manager.Phase.VICTORY or game_manager.current_state == game_manager.Phase.GAME_OVER
+	ending_overlay.visible = is_terminal
+	if is_terminal:
+		ending_title.text = game_manager.get_ending_title()
+		ending_body.text = game_manager.get_ending_text()
+
+
+func _on_restart_campaign_pressed() -> void:
+	game_manager.begin_new_campaign()
+	displayed_choice_phase = -1
+	ending_overlay.visible = false

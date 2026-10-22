@@ -15,6 +15,7 @@ var retreating: bool = false
 
 func _ready() -> void:
 	super._ready()
+	add_to_group("light_sensitive")
 	enemy_kind = &"light_leech"
 	campaign_manager = get_tree().get_first_node_in_group("campaign_manager")
 	lighthouse = get_parent().get_node_or_null("LightHouse") as Node2D
@@ -40,8 +41,10 @@ func _physics_process(delta: float) -> void:
 		lighthouse = target_player
 
 	var distance := global_position.distance_to(lighthouse.global_position)
-	var nighttime: bool = campaign_manager != null and campaign_manager.current_state == 2
-	_set_suppression(nighttime and distance <= suppression_radius)
+	var hostile_darkness: bool = campaign_manager != null and campaign_manager.current_state == 2
+	if campaign_manager != null and campaign_manager.current_state == 8 and campaign_manager.has_method("is_boss_blackout_active"):
+		hostile_darkness = campaign_manager.is_boss_blackout_active()
+	_set_suppression(hostile_darkness and distance <= suppression_radius)
 	if distance > suppression_radius * 0.72:
 		velocity = (lighthouse.global_position - global_position).normalized() * speed * movement_slow_factor
 		move_and_slide()

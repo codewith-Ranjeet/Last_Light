@@ -5,6 +5,8 @@ signal campaign_resources_changed(beacon_count: int, salvage: int)
 signal shard_secured(shard_id: StringName, secured_count: int)
 signal world_changed(world: Node)
 signal game_over_started
+signal campaign_victory_started
+signal boss_phase_changed(phase_id: int)
 signal focus_changed(focus_energy: float, focus_max: float)
 signal story_clue_discovered(clue_id: StringName, title: String, text: String)
 signal expedition_time_warning(seconds_remaining: float)
@@ -36,6 +38,7 @@ const STARTING_WORLD_SCENE = preload("res://Scenes/Worlds/LighthouseYard.tscn")
 const SHIPBREAKER_SCENE = preload("res://Scenes/Expeditions/ShipbreakerBeach.tscn")
 const SALTWOOD_SCENE = preload("res://Scenes/Expeditions/SaltwoodForest.tscn")
 const DROWNED_CHAPEL_SCENE = preload("res://Scenes/Expeditions/DrownedChapel.tscn")
+const HOLLOW_SHEPHERD_SCENE: PackedScene = preload("res://Scenes/Enemies/HollowShepherd.tscn")
 const SHARD_SHIPBREAKER: StringName = &"shipbreaker_prism_shard"
 const SHARD_SALTWOOD: StringName = &"saltwood_prism_shard"
 const SHARD_CHAPEL: StringName = &"chapel_prism_shard"
@@ -89,6 +92,9 @@ var story_clue_entries: Dictionary = {}
 var latest_story_clue_title: String = ""
 var latest_story_clue_text: String = ""
 var active_expedition_id: StringName = &""
+var active_boss: Node
+var boss_spawned: bool = false
+var victory_triggered: bool = false
 var expedition_elapsed: float = 0.0
 var expedition_warning_sent: bool = false
 var focus_disrupted_timer: float = 0.0
@@ -152,9 +158,12 @@ func begin_new_campaign() -> void:
 	latest_story_clue_title = ""
 	latest_story_clue_text = ""
 	active_expedition_id = &""
+	active_boss = null
+	boss_spawned = false
+	victory_triggered = false
 	expedition_elapsed = 0.0
 	expedition_warning_sent = false
-	_light_suppressors.clear()
+	_clear_light_suppressors()
 	selected_upgrades.clear()
 	selected_lens = &""
 	offered_upgrade_ids.clear()
@@ -583,7 +592,14 @@ func get_current_objective() -> String:
 	if current_state == Phase.LENS_SELECTION:
 		return "Tune the restored Dawn Lens for the coming Eclipse"
 	if current_state == Phase.BOSS:
-		return "The Dawn Lens is tuned. The Black Eclipse is ready."
+		var boss := get_current_boss()
+		if boss != null and boss.has_method("get_encounter_phase_name"):
+			var objective := "Expose the Hollow Shepherd with Focused Light · %s" % boss.get_encounter_phase_name()
+			var attack_status: String = boss.get_attack_status() if boss.has_method("get_attack_status") else ""
+			if attack_status != "":
+				objective += " · " + attack_status
+			return objective
+		return "The Hollow Shepherd has arrived."
 	return ""
 
 
@@ -743,9 +759,88 @@ func select_lens(lens_id: StringName) -> bool:
 	if current_state != Phase.LENS_SELECTION or not installed_shard_lens or not LENS_IDS.has(lens_id):
 		return false
 	selected_lens = lens_id
+	if not _set_phase(Phase.BOSS):
+		selected_lens = &""
+		return false
+	if not _spawn_hollow_shepherd():
+		selected_lens = &""
+		installed_shard_lens = false
+		_set_phase(Phase.DAY, true)
+		return false
 	lens_selected.emit(lens_id)
-	_set_phase(Phase.BOSS)
 	return true
+
+
+func _spawn_hollow_shepherd() -> bool:
+	if boss_spawned or not is_instance_valid(active_world) or current_state != Phase.BOSS:
+		return false
+	var boss := HOLLOW_SHEPHERD_SCENE.instantiate()
+	if boss == null:
+		return false
+	boss_spawned = true
+	active_boss = boss
+	active_world.add_child(boss)
+	boss.position = Vector2(190.0, -125.0)
+	if boss.has_signal("defeated"):
+		boss.defeated.connect(_on_boss_defeated)
+	if boss.has_signal("encounter_phase_changed"):
+		boss.encounter_phase_changed.connect(_on_boss_phase_changed)
+	return true
+
+
+func get_current_boss() -> Node:
+	return active_boss if is_instance_valid(active_boss) else null
+
+
+func is_boss_blackout_active() -> bool:
+	return current_state == Phase.BOSS and is_instance_valid(active_boss) and active_boss.has_method("is_blackout_active") and active_boss.is_blackout_active()
+
+
+func _on_boss_phase_changed(phase_id: int) -> void:
+	boss_phase_changed.emit(phase_id)
+
+
+func _on_boss_defeated(enemy_kind: StringName, _world_position: Vector2) -> void:
+	if enemy_kind == &"hollow_shepherd":
+		complete_campaign()
+
+
+func complete_campaign() -> bool:
+	if victory_triggered or is_game_over or current_state != Phase.BOSS:
+		return false
+	victory_triggered = true
+	_clear_light_suppressors()
+	var spawner := get_current_spawner()
+	if spawner != null:
+		spawner.set_spawning_enabled(false)
+	_set_phase(Phase.VICTORY, true)
+	_cleanup_remaining_enemies()
+	active_boss = null
+	campaign_victory_started.emit()
+	return true
+
+
+func _cleanup_remaining_enemies() -> void:
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if is_instance_valid(enemy):
+			enemy.queue_free()
+
+
+func _clear_light_suppressors() -> void:
+	var was_suppressed := is_light_suppressed()
+	_light_suppressors.clear()
+	if was_suppressed:
+		light_suppression_changed.emit(false)
+
+
+func get_ending_title() -> String:
+	return "Greyreach Endures" if current_state == Phase.VICTORY else "The Lighthouse Has Fallen"
+
+
+func get_ending_text() -> String:
+	if current_state == Phase.VICTORY:
+		return "The restored Dawn Lens drives the Veil from Greyreach. The Hollow Shepherd was the previous Keeper; as the darkness falls away, he is finally at rest. His last words are a whisper: ‘You kept the light.’"
+	return "The Black Eclipse swallows the Lighthouse. Greyreach disappears into the Veil. The Keeper may try again."
 
 
 func get_lens_title(lens_id: StringName) -> String:
@@ -848,16 +943,19 @@ func _expedition_name(expedition_id: StringName) -> String:
 
 
 func game_over() -> void:
-	if is_game_over:
+	if is_game_over or current_state == Phase.VICTORY or victory_triggered:
 		return
 
 	is_game_over = true
+	_clear_light_suppressors()
 	_set_phase(Phase.GAME_OVER, true)
 	game_over_started.emit()
 
 	var spawner := get_current_spawner()
 	if spawner != null:
 		spawner.set_spawning_enabled(false)
+	_cleanup_remaining_enemies()
+	active_boss = null
 
 	await get_tree().process_frame
 	get_tree().paused = true

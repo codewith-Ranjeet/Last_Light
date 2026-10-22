@@ -6,6 +6,7 @@ extends Node2D
 @export var effect_interval: float = 0.2
 
 const NIGHT_PHASE := 2
+const BOSS_PHASE := 8
 
 @onready var detection_area: Area2D = $DetectionArea
 @onready var collision_shape: CollisionShape2D = $DetectionArea/CollisionShape2D
@@ -26,7 +27,7 @@ func _process(delta: float) -> void:
 	rotation += sweep_speed * delta
 	refresh_range()
 	queue_redraw()
-	if campaign_manager == null or campaign_manager.current_state != NIGHT_PHASE:
+	if campaign_manager == null or campaign_manager.current_state not in [NIGHT_PHASE, BOSS_PHASE]:
 		return
 	if campaign_manager.has_method("is_light_suppressed") and campaign_manager.is_light_suppressed():
 		return
@@ -63,7 +64,7 @@ func _make_sector(radius: float, half_angle: float, arc_steps: int) -> PackedVec
 
 
 func _draw() -> void:
-	var nighttime: bool = campaign_manager != null and campaign_manager.current_state == NIGHT_PHASE
+	var nighttime: bool = campaign_manager != null and campaign_manager.current_state in [NIGHT_PHASE, BOSS_PHASE]
 	var suppressed: bool = campaign_manager != null and campaign_manager.has_method("is_light_suppressed") and campaign_manager.is_light_suppressed()
 	var alpha := 0.11 if nighttime else 0.035
 	var beam_color := Color(0.38, 0.29, 0.48) if suppressed else Color(1.0, 0.82, 0.48)
