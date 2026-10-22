@@ -13,11 +13,16 @@ var is_dead: bool = false
 var slow_timer: float = 0.0
 var movement_slow_factor: float = 1.0
 var snare_timer: float = 0.0
+var focused_exposure_timer: float = 0.0
 
 
 func _ready() -> void:
 	add_to_group("enemy")
 	health = maxi(max_health, 1)
+
+
+func _process(delta: float) -> void:
+	focused_exposure_timer = maxf(focused_exposure_timer - delta, 0.0)
 
 
 func _tick_status_effects(delta: float) -> bool:
@@ -66,6 +71,12 @@ func die() -> void:
 	if drops_beacon and beacon_scene != null and is_instance_valid(get_parent()):
 		var reward_parent := get_parent()
 		var beacon := beacon_scene.instantiate()
+		var manager := get_tree().get_first_node_in_group("campaign_manager")
+		if has_meta("red_moon_reward") or (manager != null and manager.active_night_event == &"red_moon"):
+			for property in beacon.get_property_list():
+				if StringName(property.name) == &"value":
+					beacon.set("value", 2)
+					break
 		beacon.position = reward_parent.to_local(global_position)
 		reward_parent.call_deferred("add_child", beacon)
 	queue_free()
@@ -76,7 +87,12 @@ func on_enemy_dying() -> void:
 
 
 func apply_focused_light(_delta: float = 0.0) -> void:
+	focused_exposure_timer = maxf(focused_exposure_timer, 0.6)
 	_apply_light_slow(0.46, 0.24, Color(0.58, 0.83, 1.0))
+
+
+func is_exposed_to_focused_light() -> bool:
+	return focused_exposure_timer > 0.0
 
 
 func apply_lighthouse_light(_delta: float = 0.0) -> void:

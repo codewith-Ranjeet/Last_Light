@@ -35,6 +35,8 @@ func _ready() -> void:
 func damage(amount: int) -> void:
 	if destroyed or amount <= 0:
 		return
+	if game_manager != null and game_manager.has_method("get_lighthouse_damage_multiplier"):
+		amount = maxi(roundi(float(amount) * game_manager.get_lighthouse_damage_multiplier()), 1)
 
 	health = maxi(health - amount, 0)
 	if game_manager != null:
@@ -82,11 +84,13 @@ func get_interaction_prompt() -> String:
 		return "Lighthouse stable"
 	if game_manager == null or game_manager.beacon_count < 1:
 		return "Need 1 Beacon to repair"
-	return "E Repair Lighthouse +%d HP · 1 Beacon" % repair_amount
+	var effective_repair: int = game_manager.get_repair_amount(repair_amount) if game_manager != null and game_manager.has_method("get_repair_amount") else repair_amount
+	return "E Repair Lighthouse +%d HP · 1 Beacon" % effective_repair
 
 
 func interact() -> bool:
-	return repair(repair_amount)
+	var effective_repair: int = game_manager.get_repair_amount(repair_amount) if game_manager != null and game_manager.has_method("get_repair_amount") else repair_amount
+	return repair(effective_repair)
 
 
 func update_damage_stage() -> void:

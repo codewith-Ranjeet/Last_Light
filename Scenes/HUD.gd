@@ -19,6 +19,13 @@ var objective_banner: Label
 var expedition_notice: Label
 var campaign_status: Label
 var notice_timer: float = 0.0
+var choice_overlay: Control
+var choice_panel: PanelContainer
+var choice_title: Label
+var choice_subtitle: Label
+var choice_buttons: VBoxContainer
+var displayed_choice_phase: int = -1
+var displayed_choice_ids: Array[StringName] = []
 
 
 func _ready() -> void:
@@ -37,6 +44,7 @@ func _ready() -> void:
 	objective_banner = _make_banner(18, 64, -410, 410)
 	expedition_notice = _make_bottom_banner(-112, -42, -380, 380)
 	campaign_status = _make_status_banner()
+	_create_choice_overlay()
 	if game_manager != null:
 		game_manager.story_clue_discovered.connect(_on_story_clue_discovered)
 		game_manager.shard_secured.connect(_on_shard_secured)
@@ -44,6 +52,7 @@ func _ready() -> void:
 		game_manager.expedition_finished.connect(_on_expedition_finished)
 		game_manager.light_suppression_changed.connect(_on_light_suppression_changed)
 		game_manager.darkness_pulse_started.connect(_on_darkness_pulse_started)
+		game_manager.night_event_changed.connect(_on_night_event_changed)
 
 
 func _process(_delta):
@@ -68,6 +77,11 @@ func _process(_delta):
 		campaign_status.text += "  ·  LIGHT SUPPRESSED"
 	if game_manager.focus_disrupted_timer > 0.0:
 		campaign_status.text += "  ·  DARKNESS PULSE"
+	_refresh_choice_overlay()
+	if game_manager.current_state == game_manager.Phase.NIGHT:
+		var spawner: Node = game_manager.get_current_spawner()
+		if spawner != null and spawner.has_method("get_progress_text"):
+			campaign_status.text += "  ·  " + spawner.get_progress_text()
 
 #----------------Hp update-----------------
 func update_hp():
@@ -175,3 +189,111 @@ func _on_light_suppression_changed(is_suppressed: bool) -> void:
 
 func _on_darkness_pulse_started(duration: float) -> void:
 	_show_notice("The Bell-Taker's darkness pulse disrupts Focus for %.1f seconds." % duration, 3.0)
+
+
+func _create_choice_overlay() -> void:
+	choice_overlay = Control.new()
+	choice_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	choice_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	choice_overlay.visible = false
+	add_child(choice_overlay)
+	var shade := ColorRect.new()
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.color = Color(0.015, 0.025, 0.035, 0.82)
+	shade.mouse_filter = Control.MOUSE_FILTER_STOP
+	choice_overlay.add_child(shade)
+	choice_panel = PanelContainer.new()
+	choice_panel.anchor_left = 0.5
+	choice_panel.anchor_right = 0.5
+	choice_panel.anchor_top = 0.5
+	choice_panel.anchor_bottom = 0.5
+	choice_panel.offset_left = -226
+	choice_panel.offset_right = 226
+	choice_panel.offset_top = -169
+	choice_panel.offset_bottom = 169
+	choice_panel.add_theme_stylebox_override("panel", _choice_panel_style())
+	choice_overlay.add_child(choice_panel)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 10)
+	choice_panel.add_child(content)
+	choice_title = Label.new()
+	choice_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	choice_title.add_theme_font_size_override("font_size", 21)
+	choice_title.add_theme_color_override("font_color", Color(0.97, 0.86, 0.62))
+	content.add_child(choice_title)
+	choice_subtitle = Label.new()
+	choice_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	choice_subtitle.add_theme_font_size_override("font_size", 13)
+	choice_subtitle.add_theme_color_override("font_color", Color(0.78, 0.84, 0.85))
+	content.add_child(choice_subtitle)
+	choice_buttons = VBoxContainer.new()
+	choice_buttons.add_theme_constant_override("separation", 6)
+	content.add_child(choice_buttons)
+
+
+func _choice_panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.08, 0.095, 0.98)
+	style.border_color = Color(0.65, 0.74, 0.62, 0.92)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 18
+	style.content_margin_right = 18
+	style.content_margin_top = 16
+	style.content_margin_bottom = 16
+	return style
+
+
+func _refresh_choice_overlay() -> void:
+	if game_manager == null or not is_instance_valid(choice_overlay):
+		return
+	var phase_id: int = game_manager.current_state
+	if phase_id != game_manager.Phase.UPGRADE and phase_id != game_manager.Phase.LENS_SELECTION:
+		choice_overlay.visible = false
+		displayed_choice_phase = -1
+		return
+	var choices: Array[StringName] = game_manager.offered_upgrade_ids.duplicate() if phase_id == game_manager.Phase.UPGRADE else game_manager.LENS_IDS.duplicate()
+	if displayed_choice_phase == phase_id and displayed_choice_ids == choices:
+		choice_overlay.visible = true
+		return
+	displayed_choice_phase = phase_id
+	displayed_choice_ids = choices.duplicate()
+	choice_overlay.visible = true
+	choice_title.text = "Memory Echo · Night %d" % game_manager.day_number if phase_id == game_manager.Phase.UPGRADE else "Tune the Dawn Lens"
+	choice_subtitle.text = "Choose one lasting upgrade" if phase_id == game_manager.Phase.UPGRADE else "Install the three shards, then choose one tuning"
+	for child in choice_buttons.get_children():
+		choice_buttons.remove_child(child)
+		child.queue_free()
+	for choice_id in choices:
+		var button := Button.new()
+		button.text = game_manager.get_upgrade_title(choice_id) if phase_id == game_manager.Phase.UPGRADE else game_manager.get_lens_title(choice_id)
+		button.custom_minimum_size = Vector2(410, 38)
+		button.add_theme_font_size_override("font_size", 16)
+		button.add_theme_color_override("font_color", Color(0.94, 0.93, 0.84))
+		button.pressed.connect(_on_choice_pressed.bind(choice_id, phase_id))
+		choice_buttons.add_child(button)
+		var description := Label.new()
+		description.text = game_manager.get_upgrade_description(choice_id) if phase_id == game_manager.Phase.UPGRADE else game_manager.get_lens_description(choice_id)
+		description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		description.add_theme_font_size_override("font_size", 12)
+		description.add_theme_color_override("font_color", Color(0.7, 0.79, 0.81))
+		choice_buttons.add_child(description)
+	if choice_buttons.get_child_count() > 0 and choice_buttons.get_child(0) is Button:
+		(choice_buttons.get_child(0) as Button).grab_focus()
+
+
+func _on_choice_pressed(choice_id: StringName, phase_id: int) -> void:
+	if phase_id == game_manager.Phase.UPGRADE:
+		game_manager.select_upgrade(choice_id)
+	else:
+		game_manager.select_lens(choice_id)
+	_refresh_choice_overlay()
+
+
+func _on_night_event_changed(event_id: StringName, duration: float) -> void:
+	if duration <= 0.0:
+		return
+	if event_id == &"eclipse_surge":
+		_show_notice("Eclipse Surge · Lighthouse sweep range reduced for %.0f seconds." % duration, 4.0)
+	elif event_id == &"red_moon":
+		_show_notice("Red Moon · Two extra threats approach; defeated enemies carry two Beacons." , 4.0)

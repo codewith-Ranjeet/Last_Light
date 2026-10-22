@@ -7,12 +7,23 @@ extends Area2D
 
 var elapsed: float = 0.0
 var effect_timer: float = 0.0
+var base_field_radius: float = 76.0
 
 
 func _ready() -> void:
 	add_to_group("defense_structure")
+	add_to_group("ward_lantern")
+	base_field_radius = field_radius
+	apply_campaign_upgrades()
+
+
+func apply_campaign_upgrades() -> void:
+	var manager := get_tree().get_first_node_in_group("campaign_manager")
+	var multiplier: float = manager.get_ward_radius_multiplier() if manager != null and manager.has_method("get_ward_radius_multiplier") else 1.0
+	field_radius = base_field_radius * multiplier
 	var shape := $CollisionShape2D.shape as CircleShape2D
 	shape.radius = field_radius
+	queue_redraw()
 
 
 func _process(delta: float) -> void:

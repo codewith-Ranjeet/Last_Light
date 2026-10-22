@@ -22,5 +22,8 @@ No external art, audio, or downloaded assets were added for Milestones C or D. N
 | Prism Shard | `Scenes/Expeditions/PrismShard.gd` | Marks the required campaign objective | Procedural shard glyph; collection persists through extraction. |
 | Story fragments | `Scenes/Expeditions/StoryClue.gd` | Presents the previous Keeper's expedition clues | Procedural journal slip with one-time campaign recording. |
 | Expedition board and extraction | `Scenes/Expeditions/ExpeditionBoard.gd`, `ExpeditionExit.gd` | Shows mission availability and the return point | Procedural route markers with contextual interaction prompts. |
+| Night wave configurations | `Scenes/EnemySpawner/Configs/Night1.tres`–`Night4.tres` | Defines enemy mixes, spawn timing, night limits, and special events | Data-authored waves use the existing enemy scenes. |
+| Eclipse Surge and Red Moon | `Scenes/EnemySpawner/EnemySpawner.gd`, `Scenes/LightHouse/LighthouseBeam.gd` | Shows temporary beam suppression and a more aggressive, more rewarding wave | Gameplay modifiers and notices share the event timer. |
+| Memory Echo and lens choices | `Scenes/HUD.gd`, `Scenes/Worlds/DawnLensConsole.gd` | Presents upgrade rewards and the Day 5 lens tuning | HUD panels are built with Godot controls; the console draws installed shards procedurally. |
 
 Existing player, Lighthouse, Beacon, Shadow Crawler, and projectile sprites remain in use. Their original provenance is not recorded in this repository; Milestones C and D did not alter or redistribute them.

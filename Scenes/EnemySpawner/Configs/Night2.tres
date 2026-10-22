@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="NightConfig" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://Scenes/EnemySpawner/NightConfig.gd" id="1_config"]
+[ext_resource type="Script" path="res://Scenes/EnemySpawner/NightWaveConfig.gd" id="2_wave"]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/ShadowCrawler.tscn" id="3_crawler"]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/Nightstalker.tscn" id="4_stalker"]
+
+[sub_resource type="Resource" id="WaveOne"]
+script = ExtResource("2_wave")
+wave_name = "Shoreline Shadows"
+enemy_scenes = Array[PackedScene]([ExtResource("3_crawler")])
+spawn_count = 4
+spawn_interval = 1.1
+initial_delay = 1.0
+
+[sub_resource type="Resource" id="WaveTwo"]
+script = ExtResource("2_wave")
+wave_name = "The Stalking Tide"
+enemy_scenes = Array[PackedScene]([ExtResource("3_crawler"), ExtResource("4_stalker")])
+spawn_count = 4
+spawn_interval = 0.95
+initial_delay = 2.0
+
+[sub_resource type="Resource" id="WaveThree"]
+script = ExtResource("2_wave")
+wave_name = "Hunters in the Dark"
+enemy_scenes = Array[PackedScene]([ExtResource("4_stalker")])
+spawn_count = 3
+spawn_interval = 0.9
+initial_delay = 2.5
+
+[resource]
+script = ExtResource("1_config")
+night_number = 2
+waves = Array[Resource]([SubResource("WaveOne"), SubResource("WaveTwo"), SubResource("WaveThree")])
+special_event = &"eclipse_surge"
+special_event_wave = 2
+special_event_duration = 20.0
+maximum_duration = 105.0

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="NightConfig" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scenes/EnemySpawner/NightConfig.gd" id="1_config"]
+[ext_resource type="Script" path="res://Scenes/EnemySpawner/NightWaveConfig.gd" id="2_wave"]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/ShadowCrawler.tscn" id="3_crawler"]
+
+[sub_resource type="Resource" id="WaveOne"]
+script = ExtResource("2_wave")
+wave_name = "First Knocks"
+enemy_scenes = Array[PackedScene]([ExtResource("3_crawler")])
+spawn_count = 3
+spawn_interval = 1.25
+initial_delay = 1.0
+
+[sub_resource type="Resource" id="WaveTwo"]
+script = ExtResource("2_wave")
+wave_name = "The First Pressure"
+enemy_scenes = Array[PackedScene]([ExtResource("3_crawler")])
+spawn_count = 4
+spawn_interval = 1.05
+initial_delay = 2.0
+
+[resource]
+script = ExtResource("1_config")
+night_number = 1
+waves = Array[Resource]([SubResource("WaveOne"), SubResource("WaveTwo")])
+maximum_duration = 90.0

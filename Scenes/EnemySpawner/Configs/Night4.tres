@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="NightConfig" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://Scenes/EnemySpawner/NightConfig.gd" id="1_config"]
+[ext_resource type="Script" path="res://Scenes/EnemySpawner/NightWaveConfig.gd" id="2_wave"]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/ShadowCrawler.tscn" id="3_crawler"]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/Nightstalker.tscn" id="4_stalker"]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/LightLeech.tscn" id="5_leech"]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/AshenBrute.tscn" id="6_brute"]
+
+[sub_resource type="Resource" id="WaveOne"]
+script = ExtResource("2_wave")
+wave_name = "The Known Threats"
+enemy_scenes = Array[PackedScene]([ExtResource("3_crawler"), ExtResource("4_stalker"), ExtResource("5_leech")])
+spawn_count = 6
+spawn_interval = 0.95
+initial_delay = 1.0
+
+[sub_resource type="Resource" id="WaveTwo"]
+script = ExtResource("2_wave")
+wave_name = "The Red Moon Rises"
+enemy_scenes = Array[PackedScene]([ExtResource("3_crawler"), ExtResource("4_stalker"), ExtResource("5_leech"), ExtResource("6_brute")])
+spawn_count = 6
+spawn_interval = 0.85
+initial_delay = 2.0
+
+[sub_resource type="Resource" id="WaveThree"]
+script = ExtResource("2_wave")
+wave_name = "The Last Siege"
+enemy_scenes = Array[PackedScene]([ExtResource("3_crawler"), ExtResource("4_stalker"), ExtResource("5_leech"), ExtResource("6_brute")])
+spawn_count = 8
+spawn_interval = 0.78
+initial_delay = 2.2
+
+[resource]
+script = ExtResource("1_config")
+night_number = 4
+waves = Array[Resource]([SubResource("WaveOne"), SubResource("WaveTwo"), SubResource("WaveThree")])
+special_event = &"red_moon"
+special_event_wave = 2
+special_event_duration = 24.0
+maximum_duration = 140.0

@@ -43,6 +43,10 @@ func interact() -> bool:
 	built = true
 	get_parent().add_child(structure)
 	structure.global_position = global_position
+	if manager.has_method("apply_defense_upgrades"):
+		manager.apply_defense_upgrades(structure)
+	if structure.has_method("apply_campaign_upgrades"):
+		structure.apply_campaign_upgrades()
 	CombatFeedback.burst(get_parent(), global_position, Color(0.72, 0.91, 0.68), 22.0)
 	queue_redraw()
 	return true

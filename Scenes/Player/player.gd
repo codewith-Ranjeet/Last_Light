@@ -6,6 +6,7 @@ signal interaction_prompt_changed(prompt: String)
 @export var interaction_range: float = 70.0
 @export var max_health: int = 100
 @export var invulnerability_duration: float = 0.9
+@export var fire_interval: float = 0.36
 
 @onready var sprite = $Sprite2D
 
@@ -21,15 +22,22 @@ var nearest_interactable: Node
 var interaction_scan_timer: float = 0.0
 var health: int = 100
 var invulnerability_timer: float = 0.0
+var fire_cooldown_timer: float = 0.0
+var campaign_manager: Node
 
 
 func _ready() -> void:
-	var manager := get_tree().get_first_node_in_group("campaign_manager")
-	if manager != null and manager.has_method("register_player"):
-		manager.register_player(self)
+	campaign_manager = get_tree().get_first_node_in_group("campaign_manager")
+	if campaign_manager != null and campaign_manager.has_method("register_player"):
+		campaign_manager.register_player(self)
 
 func _physics_process(_delta: float) -> void:
+	if campaign_manager != null and (campaign_manager.current_state == campaign_manager.Phase.UPGRADE or campaign_manager.current_state == campaign_manager.Phase.LENS_SELECTION):
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 	_tick_damage_state(_delta)
+	fire_cooldown_timer = maxf(fire_cooldown_timer - _delta, 0.0)
 
 	var direction = Input.get_vector(
 		"move_left",
@@ -103,8 +111,16 @@ func update_facing_direction() -> void:
 
 
 func shoot() -> void:
+	if fire_cooldown_timer > 0.0:
+		return
 
 	var flame = FLAME_SCENE.instantiate()
+	var manager := get_tree().get_first_node_in_group("campaign_manager")
+	if manager != null:
+		flame.damage = roundi(float(flame.damage) * manager.get_projectile_damage_multiplier())
+		fire_cooldown_timer = fire_interval * manager.get_fire_interval_multiplier()
+	else:
+		fire_cooldown_timer = fire_interval
 
 	get_parent().add_child(flame)
 

@@ -50,7 +50,7 @@ As darkness engulfs the world, shadow creatures emerge every night to extinguish
 - Health system
 - Custom HP Bar
 - Repair mechanic
-- Repairs restore 5 HP per Beacon
+- Repairs restore 5 HP per Beacon; Patient Repair improves this to 8 HP
 - Cannot repair at full HP
 - Repair available only during Day
 - Game Over when destroyed
@@ -105,21 +105,25 @@ Current cycle:
 ☀ Day
 ```
 
+Nights 1–4 use authored finite wave configurations. Clearing all waves, or reaching the configured night limit, stops further spawns and sends surviving enemies into retreat. Nights 2 and 4 add the temporary Eclipse Surge and Red Moon events. After each night, the Keeper chooses one of three distinct Memory Echo upgrades; Day 5 pauses ordinary day progression so all three secured shards can be installed at the Dawn Lens console and one of three lens tunings can be chosen.
+
 ### Behaviour
 
 | Phase | Behaviour |
 |--------|-----------|
 | ☀ Day | Repair lighthouse |
 | 🌇 Dusk | Transition into darkness |
-| 🌙 Night | Enemy spawning begins |
-| 🌅 Dawn | Enemies retreat into the Veil |
+| 🌙 Night | Finite authored waves arrive; clear them to bring dawn early |
+| 🌅 Dawn | Spawning stops and surviving enemies retreat |
+| ✨ Memory Echo | Choose one upgrade after Nights 1–4 |
+| 🔆 Day 5 | Install the three shards and choose a lens tuning |
 | 🧭 Expedition | Explore a daytime map, claim its shard, and extract to the Yard |
 
 ## Campaign Architecture
 
 `Main.tscn` remains loaded for the run. Its `GameManager` owns the current day and phase, Beacons, Salvage, secured shard IDs, discovered story clues, player health, upgrades, lens selection, and lighthouse health. The active location is instanced under `WorldContainer`, so replacing a world does not discard that campaign state. `Scenes/Worlds/LighthouseYard.tscn` is the starting location; expedition controllers own their shard, extraction, and environment objectives.
 
-The prototype starts in Day 1 and follows Day → Dusk → Night → Dawn before advancing to the next day. The manager rejects invalid phase transitions, duplicate shard claims, insufficient resource spending, and repeated Game Over transitions.
+The campaign starts in Day 1 and follows Day → Dusk → finite Night waves → Dawn → Memory Echo before advancing. The manager rejects invalid phase transitions, duplicate shard claims, insufficient resource spending, and repeated Game Over transitions. The final lens selection prepares the Black Eclipse state; the Hollow Shepherd encounter is planned for the next milestone.
 
 ---
 
