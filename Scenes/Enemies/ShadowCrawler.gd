@@ -13,13 +13,14 @@ var attacking: bool = false
 var tower = null
 var attack_timer: float = 0.0
 var health: int
+var is_dead: bool = false
 var retreating: bool = false
 var retreat_direction: Vector2 = Vector2.ZERO
 
 
 func _ready():
 	target = get_parent().get_node_or_null("LightHouse")
-	health = max_health
+	health = maxi(max_health, 1)
 
 
 func _physics_process(delta):
@@ -43,12 +44,15 @@ func _physics_process(delta):
 		if attack_timer >= attack_interval:
 			attack_timer = 0.0
 
-			if tower:
+			if is_instance_valid(tower):
 				tower.damage(damage)
+			else:
+				stop_attacking()
 
 		return
 
-	if target == null:
+	if not is_instance_valid(target):
+		queue_free()
 		return
 
 	var direction = (target.global_position - global_position).normalized()
@@ -59,6 +63,8 @@ func _physics_process(delta):
 #------------------ ATTACK ------------------
 
 func start_attacking(target):
+	if is_dead or retreating or not is_instance_valid(target):
+		return
 	attacking = true
 	tower = target
 	attack_timer = 0.0
@@ -72,13 +78,23 @@ func stop_attacking():
 #------------------ DAMAGE ------------------
 
 func damage_to_enemy(amount):
-	health -= amount
+	if is_dead or amount <= 0:
+		return
+
+	health = maxi(health - amount, 0)
 
 	if health <= 0:
 		die()
 
 
 func die():
+	if is_dead:
+		return
+	is_dead = true
+	stop_attacking()
+	velocity = Vector2.ZERO
+	remove_from_group("enemy")
+
 	if beacon_scene:
 		var beacon = beacon_scene.instantiate()
 		get_parent().add_child(beacon)
@@ -90,10 +106,15 @@ func die():
 #------------------ RETREAT ------------------
 
 func retreat():
-	if target == null:
+	if is_dead or retreating:
+		return
+	if not is_instance_valid(target):
+		queue_free()
 		return
 
 	retreat_direction = (global_position - target.global_position).normalized()
+	if retreat_direction.is_zero_approx():
+		retreat_direction = Vector2.RIGHT
 	retreating = true
 	stop_attacking()
 

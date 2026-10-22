@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bhggujv4qwsqn"]
 
 [ext_resource type="Script" uid="uid://m3bcthvanlrx" path="res://Scenes/Projectiles/FlameSpirit.gd" id="1_jfywr"]
-[ext_resource type="Texture2D" uid="uid://bav4tlypl5e7s" path="res://Assets/Sprites/Projectiles/fireBall.png" id="2_78cl1"]
+[ext_resource type="Texture2D" uid="uid://c14gcyjqange0" path="res://Assets/Sprites/Projectiles/fireBall.png" id="2_78cl1"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_rf0ae"]
 radius = 6.0

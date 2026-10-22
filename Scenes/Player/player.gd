@@ -11,10 +11,7 @@ const KEEPER_RIGHT = preload("res://Assets/Sprites/Player/keeper_right.png")
 
 const FLAME_SCENE = preload("res://Scenes/Projectiles/FlameSpirit.tscn")
 
-var beacons: int = 0
-
-
-func _physics_process(_delta):
+func _physics_process(_delta: float) -> void:
 
 	var direction = Input.get_vector(
 		"move_left",
@@ -32,7 +29,7 @@ func _physics_process(_delta):
 		shoot()
 
 
-func update_facing_direction():
+func update_facing_direction() -> void:
 
 	var mouse_direction = get_global_mouse_position() - global_position
 
@@ -48,7 +45,7 @@ func update_facing_direction():
 			sprite.texture = KEEPER_UP
 
 
-func shoot():
+func shoot() -> void:
 
 	var flame = FLAME_SCENE.instantiate()
 
@@ -63,5 +60,6 @@ func shoot():
 
 
 func collect_beacon(amount: int):
-	beacons += amount
-	print("Beacons:", beacons)
+	var campaign_manager := get_tree().get_first_node_in_group("campaign_manager")
+	if campaign_manager != null:
+		campaign_manager.add_beacons(amount)

@@ -88,6 +88,12 @@ Current cycle:
 | 🌙 Night | Enemy spawning begins |
 | 🌅 Dawn | Enemies retreat into the Veil |
 
+## Campaign Architecture
+
+`Main.tscn` remains loaded for the run. Its `GameManager` owns the current day and phase, Beacons, Salvage, secured shard IDs, upgrades, lens selection, and lighthouse health. The active location is instanced under `WorldContainer`, so replacing a world does not discard that campaign state. `Scenes/Worlds/LighthouseYard.tscn` is the current starting location.
+
+The prototype starts in Day 1 and follows Day → Dusk → Night → Dawn before advancing to the next day. The manager rejects invalid phase transitions, duplicate shard claims, insufficient resource spending, and repeated Game Over transitions.
+
 ---
 
 ## 💎 Beacon System
@@ -103,7 +109,6 @@ Current cycle:
 ## 📺 User Interface
 
 - Lighthouse custom HP Bar
-- Lighthouse HP text
 - Beacon counter
 - Current phase indicator
 
@@ -143,10 +148,11 @@ Scenes/
     Enemies/
     EnemySpawner/
     GameManager/
-    HUD/
     LightHouse/
     Player/
     Projectiles/
+    Worlds/
+    HUD.gd
 
 project.godot
 ```

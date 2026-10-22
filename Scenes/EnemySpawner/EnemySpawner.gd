@@ -8,23 +8,31 @@ var timer: float = 0.0
 var can_spawn: bool = false
 
 
-func _process(delta):
-	if !can_spawn:
+func _process(delta: float) -> void:
+	if not can_spawn:
 		return
 
 	timer += delta
 
-	if timer >= spawn_interval:
+	if timer >= maxf(spawn_interval, 0.05):
 		timer = 0.0
 		spawn_enemy()
 
 
-func spawn_enemy():
-	if enemy_scene == null:
+func set_spawning_enabled(enabled: bool) -> void:
+	if can_spawn == enabled:
+		return
+	can_spawn = enabled
+	timer = 0.0
+
+
+func spawn_enemy() -> void:
+	var world := get_parent()
+	if enemy_scene == null or world == null:
 		return
 
 	var enemy = enemy_scene.instantiate()
-	get_parent().add_child(enemy)
+	world.add_child(enemy)
 	enemy.global_position = get_random_spawn_position()
 
 

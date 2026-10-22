@@ -1,17 +1,19 @@
 extends StaticBody2D
 
+signal health_changed(current_health: int, maximum_health: int)
+
 @export var max_health: int = 100
-const REPAIR_AMOUNT: int = 5
+@export var repair_amount: int = 5
 
-@onready var player = $"../Player"
-@onready var game_manager = $"../GameManager"
-@onready var sprite = $Sprite2D
+@onready var sprite: Sprite2D = $Sprite2D
+@onready var game_manager: Node = get_tree().get_first_node_in_group("campaign_manager")
 
-var health: int
+var health: int = 100
 var destroyed: bool = false
 var player_near: bool = false
 var can_repair: bool = false
-var current_stage := -1
+var current_stage: int = -1
+
 const DAMAGE_STAGES = [
 	preload("res://Assets/Sprites/LightHouse/LH100.png"),
 	preload("res://Assets/Sprites/LightHouse/LH75.png"),
@@ -20,84 +22,71 @@ const DAMAGE_STAGES = [
 	preload("res://Assets/Sprites/LightHouse/LHDestroyed.png")
 ]
 
-#---------------Ready state----------------
-func _ready():
-	health = max_health
+
+func _ready() -> void:
+	max_health = maxi(max_health, 1)
+	if game_manager != null:
+		game_manager.register_lighthouse(self)
+	else:
+		health = max_health
 	update_damage_stage()
 
-func _physics_process(_delta):
-	if !can_repair:
+
+func _physics_process(_delta: float) -> void:
+	if can_repair and player_near and Input.is_action_just_pressed("repair"):
+		repair(repair_amount)
+
+
+func damage(amount: int) -> void:
+	if destroyed or amount <= 0:
 		return
 
-	if player_near and Input.is_action_just_pressed("repair"):
-		repair(REPAIR_AMOUNT)
-
-
-#---------------- DAMAGE ----------------
-
-func damage(amount: int):
-	if destroyed:
-		return
-
-	health -= amount
-	health = max(health, 0)
-
-	print("Tower HP:", health)
-	
+	health = maxi(health - amount, 0)
+	if game_manager != null:
+		game_manager.record_lighthouse_health(health)
 	update_damage_stage()
-	
+	health_changed.emit(health, max_health)
+
 	if health == 0:
 		destroyed = true
-		game_manager.game_over()
+		if game_manager != null:
+			game_manager.game_over()
 
 
-#---------------- ENEMY ATTACK ----------------
-
-func _on_area_2d_body_entered(body):
-	if body.is_in_group("enemy"):
+func _on_area_2d_body_entered(body: Node2D) -> void:
+	if body.is_in_group("enemy") and body.has_method("start_attacking"):
 		body.start_attacking(self)
 
 
-func _on_area_2d_body_exited(body):
-	if body.is_in_group("enemy"):
+func _on_area_2d_body_exited(body: Node2D) -> void:
+	if body.is_in_group("enemy") and body.has_method("stop_attacking"):
 		body.stop_attacking()
 
 
-#---------------- REPAIR AREA ----------------
-
-func _on_repair_area_body_entered(body):
+func _on_repair_area_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		player_near = true
 
 
-func _on_repair_area_body_exited(body):
+func _on_repair_area_body_exited(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		player_near = false
 
 
-#---------------- REPAIR ----------------
+func repair(amount: int) -> bool:
+	if destroyed or not can_repair or amount <= 0 or health >= max_health:
+		return false
+	if game_manager == null or not game_manager.spend_beacons(1):
+		return false
 
-func repair(amount: int):
-	if destroyed:
-		return
-
-	if health >= max_health:
-		print("Health Full")
-		return
-
-	if player.beacons <= 0:
-		print("Need more Beacon")
-		return
-
-	player.beacons -= 1
-	health = min(health + amount, max_health)
-	
+	health = mini(health + amount, max_health)
+	game_manager.record_lighthouse_health(health)
 	update_damage_stage()
-	print("Tower HP:", health)
+	health_changed.emit(health, max_health)
+	return true
 
-#-------------HPStage-------------
-func update_damage_stage():
 
+func update_damage_stage() -> void:
 	var percent := health / float(max_health)
 	var stage := 0
 
