@@ -133,6 +133,10 @@ func shoot() -> void:
 
 
 func _update_interaction_prompt() -> void:
+	# Interacting with an expedition board replaces the current world immediately.
+	# The old player's deferred interaction then returns here after it has left the tree.
+	if not is_inside_tree():
+		return
 	var closest: Node
 	var closest_distance := interaction_range
 	for candidate in get_tree().get_nodes_in_group("player_interactable"):
