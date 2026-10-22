@@ -16,72 +16,127 @@ script = ExtResource("5_21xkr")
 
 [node name="WorldContainer" type="Node2D" parent="." unique_id=1744062053]
 
-[node name="LighthouseYard" parent="WorldContainer" instance=ExtResource("5_kry3j")]
+[node name="LighthouseYard" parent="WorldContainer" unique_id=1558072978 instance=ExtResource("5_kry3j")]
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1316291278]
 script = ExtResource("6_21xkr")
 
-[node name="MarginContainer" type="MarginContainer" parent="HUD" unique_id=1862076253]
-offset_right = 57.0
-offset_bottom = 51.0
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
+[node name="StatusPanel" type="PanelContainer" parent="HUD"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 128.0
+offset_bottom = 62.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="HUD/MarginContainer" unique_id=1931699647]
-layout_mode = 2
+[node name="StatusRows" type="VBoxContainer" parent="HUD/StatusPanel"]
+theme_override_constants/separation = 3
 
-[node name="HPContainer" type="Control" parent="HUD/MarginContainer/VBoxContainer" unique_id=1423263069]
-custom_minimum_size = Vector2(200, 24)
-layout_mode = 2
+[node name="HPContainer" type="Control" parent="HUD/StatusPanel/StatusRows"]
+custom_minimum_size = Vector2(106, 16)
 
-[node name="HPBackground" type="TextureRect" parent="HUD/MarginContainer/VBoxContainer/HPContainer" unique_id=2037511780]
-layout_mode = 0
-offset_right = 240.0
-offset_bottom = 35.0
+[node name="HPBackground" type="TextureRect" parent="HUD/StatusPanel/StatusRows/HPContainer"]
+offset_right = 106.0
+offset_bottom = 16.0
 texture = ExtResource("7_ynf5e")
+expand_mode = 1
+stretch_mode = 0
 
-[node name="FillMask" type="Control" parent="HUD/MarginContainer/VBoxContainer/HPContainer" unique_id=1571483124]
+[node name="FillMask" type="Control" parent="HUD/StatusPanel/StatusRows/HPContainer"]
 clip_contents = true
-anchors_preset = 0
-offset_left = 20.0
-offset_top = 4.0
-offset_right = 217.0
-offset_bottom = 30.0
+offset_left = 9.0
+offset_top = 2.0
+offset_right = 96.0
+offset_bottom = 14.0
 
-[node name="HPFill" type="TextureRect" parent="HUD/MarginContainer/VBoxContainer/HPContainer/FillMask" unique_id=657198269]
-layout_mode = 0
-offset_left = 4.0
+[node name="HPFill" type="TextureRect" parent="HUD/StatusPanel/StatusRows/HPContainer/FillMask"]
+offset_left = 2.0
 offset_top = -1.0
-offset_right = 196.0
-offset_bottom = 23.0
+offset_right = 87.0
+offset_bottom = 11.0
 texture = ExtResource("8_hptm8")
+expand_mode = 1
+stretch_mode = 0
 
-[node name="BeaconContainer" type="HBoxContainer" parent="HUD/MarginContainer/VBoxContainer" unique_id=1123718142]
-layout_mode = 2
+[node name="KeeperLabel" type="Label" parent="HUD/StatusPanel/StatusRows"]
+text = "KEEPER 100/100"
 
-[node name="BeaconIcon" type="TextureRect" parent="HUD/MarginContainer/VBoxContainer/BeaconContainer" unique_id=1501522454]
-layout_mode = 2
-texture = ExtResource("7_6bp64")
+[node name="FocusRow" type="HBoxContainer" parent="HUD/StatusPanel/StatusRows"]
+theme_override_constants/separation = 4
 
-[node name="BeaconCount" type="Label" parent="HUD/MarginContainer/VBoxContainer/BeaconContainer" unique_id=1589439079]
-layout_mode = 2
+[node name="FocusLabel" type="Label" parent="HUD/StatusPanel/StatusRows/FocusRow"]
+text = "FOCUS"
 
-[node name="Phase" type="Label" parent="HUD/MarginContainer/VBoxContainer" unique_id=1731336526]
-layout_mode = 2
-
-[node name="Salvage" type="Label" parent="HUD/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="FocusLabel" type="Label" parent="HUD/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="FocusMeter" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(180, 10)
-layout_mode = 2
-max_value = 100.0
+[node name="FocusMeter" type="ProgressBar" parent="HUD/StatusPanel/StatusRows/FocusRow"]
+custom_minimum_size = Vector2(58, 7)
 show_percentage = false
 
-[node name="InteractionHint" type="Label" parent="HUD/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(280, 32)
-layout_mode = 2
+[node name="ResourcePanel" type="PanelContainer" parent="HUD"]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -128.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 62.0
+
+[node name="ResourceRows" type="VBoxContainer" parent="HUD/ResourcePanel"]
+theme_override_constants/separation = 2
+
+[node name="BeaconRow" type="HBoxContainer" parent="HUD/ResourcePanel/ResourceRows"]
+theme_override_constants/separation = 4
+
+[node name="BeaconIcon" type="TextureRect" parent="HUD/ResourcePanel/ResourceRows/BeaconRow"]
+custom_minimum_size = Vector2(14, 14)
+texture = ExtResource("7_6bp64")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BeaconCount" type="Label" parent="HUD/ResourcePanel/ResourceRows/BeaconRow"]
+text = "Beacons: 0"
+
+[node name="SalvageLabel" type="Label" parent="HUD/ResourcePanel/ResourceRows"]
+text = "Salvage: 0"
+
+[node name="ShardLabel" type="Label" parent="HUD/ResourcePanel/ResourceRows"]
+text = "Shards: 0/3"
+
+[node name="ObjectivePanel" type="PanelContainer" parent="HUD"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -150.0
+offset_top = 8.0
+offset_right = 150.0
+offset_bottom = 44.0
+
+[node name="ObjectiveRows" type="VBoxContainer" parent="HUD/ObjectivePanel"]
+alignment = 1
+theme_override_constants/separation = 1
+
+[node name="PhaseLabel" type="Label" parent="HUD/ObjectivePanel/ObjectiveRows"]
+text = "DAY 1"
+horizontal_alignment = 1
+
+[node name="ObjectiveLabel" type="Label" parent="HUD/ObjectivePanel/ObjectiveRows"]
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="AlertLabel" type="Label" parent="HUD/ObjectivePanel/ObjectiveRows"]
+visible = false
+text = ""
+horizontal_alignment = 1
+
+[node name="PromptPanel" type="PanelContainer" parent="HUD"]
+visible = false
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -140.0
+offset_top = -30.0
+offset_right = 140.0
+offset_bottom = -8.0
+
+[node name="PromptLabel" type="Label" parent="HUD/PromptPanel"]
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
 autowrap_mode = 2

@@ -11,3 +11,5 @@ Thumbs.db
 
 # Godot import files
 *.import
+# Locally installed Ziva agent executable
+addons/ziva_agent/zivacode/windows_x86_64/zivacode.exe

@@ -27,3 +27,32 @@ No external art, audio, or downloaded assets were added for Milestones C or D. N
 | Memory Echo and lens choices | `Scenes/HUD.gd`, `Scenes/Worlds/DawnLensConsole.gd` | Presents upgrade rewards and the Day 5 lens tuning | HUD panels are built with Godot controls; the console draws installed shards procedurally. |
 
 Existing player, Lighthouse, Beacon, Shadow Crawler, and projectile sprites remain in use. Their original provenance is not recorded in this repository; Milestones C and D did not alter or redistribute them.
+
+## Milestone G — Stage 1: Lighthouse Yard environment
+
+Six pixel-art assets were generated for the Lighthouse Yard surface. They are pixel art produced with Ziva's built-in image generation tool from text prompts only (no reference images, no third-party asset packs, no downloads). They are original to this project and carry no external license terms. All are imported with nearest-neighbour filtering and used at 1:1 pixel scale.
+
+| Asset | Path | Purpose | Notes |
+|---|---|---|---|
+| Yard ground tile | `Assets/generated/yard_ground.png` | Seamless 64×64 muted blue-grey stone/earth surface for the lit Yard | Opaque tile; repeated with Sprite2D `region_rect` + `texture_repeat` |
+| Void tile | `Assets/generated/yard_void.png` | Seamless near-black 64×64 ground for the darkness beyond the Yard | Opaque; gives the Yard a readable edge without collision |
+| Worn path tile | `Assets/generated/yard_path.png` | Seamless 64×64 weathered flagstone path | Opaque; drawn as a crossroads through the Lighthouse |
+| Shoreline rocks | `Assets/generated/yard_rocks.png` | 64×64 transparent prop | Non-colliding decoration |
+| Sea-grass tuft | `Assets/generated/yard_grass.png` | 48×48 transparent prop | Non-colliding decoration |
+| Weathered ruin | `Assets/generated/yard_ruin.png` | 64×64 transparent prop | Non-colliding decoration |
+
+All six assets are visual only: none adds collision shapes, detection areas, or gameplay behaviour. The Yard's ground, void, path, and prop nodes are `Sprite2D` decorations placed below the existing entities (negative `z_index`) and do not alter combat, movement, interaction zones, or the retreat boundaries.
+
+## Milestone G — Stage 1B: Lighthouse Yard composition
+
+Stage 1B refined the Yard's framing, ground/path transition, and Lighthouse presentation. Three further pixel-art assets were generated the same way (Ziva's image tool from text prompts only; original to this project, no external license terms). The Yard ground was enlarged from 640×640 to 960×576 and the Yard-local `Camera2D` was given limits of ±480 × ±288 in `Scenes/Worlds/LighthouseYard.tscn` (a per-instance override, so expeditions are unaffected). The Lighthouse glow is a procedural `GradientTexture2D` radial gradient with an additive `CanvasItemMaterial` behind the Lighthouse sprite — no image file.
+
+| Asset | Path | Purpose | Notes |
+|---|---|---|---|
+| Worn path (vertical) | `Assets/generated/yard_path_v.png` | Seamless 64×64 vertical footpath whose edges fade into the yard ground | Replaces `yard_path.png` for the N–S path |
+| Worn path (horizontal) | `Assets/generated/yard_path_h.png` | Seamless 64×64 horizontal footpath whose edges fade into the yard ground | Replaces `yard_path.png` for the E–W path |
+| Ground details | `Assets/generated/yard_details.png` | 48×48 transparent prop (worn paving stone + scattered pebbles) | Non-colliding decoration |
+
+Superseded / unused generated files (kept on disk, not referenced by any scene; may be removed on request): `Assets/generated/yard_path.png` (replaced by `yard_path_v.png`/`yard_path_h.png`) and `Assets/generated/yard_glow.png` (replaced by the procedural `GradientTexture2D` glow).
+
+All Stage 1B assets are visual only. The glow sits at `z_index = -9` (behind all entities, below the Lighthouse sprite) so it does not alter enemy status tints or any gameplay-relevant colour.

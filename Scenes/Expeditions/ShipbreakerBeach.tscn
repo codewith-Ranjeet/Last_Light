@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="PackedScene" path="res://Scenes/Player/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://Scenes/Expeditions/ExpeditionController.gd" id="2_controller"]
@@ -7,6 +7,37 @@
 [ext_resource type="PackedScene" path="res://Scenes/Expeditions/StoryClue.tscn" id="5_clue"]
 [ext_resource type="PackedScene" path="res://Scenes/Resources/SalvagePickup.tscn" id="6_salvage"]
 [ext_resource type="PackedScene" path="res://Scenes/Expeditions/ExpeditionObstacle.tscn" id="7_obstacle"]
+[ext_resource type="Texture2D" uid="uid://do741ly538ggj" path="res://Assets/generated/beach_sand_fine.png" id="8_sand"]
+[ext_resource type="Texture2D" uid="uid://buih6yqhlsfta" path="res://Assets/generated/beach_water.png" id="9_water"]
+[ext_resource type="Texture2D" uid="uid://cerfbutbk5wd6" path="res://Assets/generated/beach_wreck.png" id="10_wreck"]
+[ext_resource type="Texture2D" uid="uid://cmsos075ge88q" path="res://Assets/generated/beach_mast.png" id="11_mast"]
+[ext_resource type="Texture2D" uid="uid://c445u4b8lrbc0" path="res://Assets/generated/beach_timber.png" id="12_timber"]
+[ext_resource type="Texture2D" uid="uid://1oj8hd6amriu" path="res://Assets/generated/beach_rocks.png" id="13_rocks"]
+[ext_resource type="Texture2D" uid="uid://dta4edg0m58vk" path="res://Assets/generated/beach_tidepool.png" id="14_pool"]
+
+[sub_resource type="Gradient" id="BeachMistGradient"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(0.76, 0.82, 0.87, 0.24, 0.76, 0.82, 0.87, 0)
+
+[sub_resource type="GradientTexture2D" id="BeachMistTexture"]
+gradient = SubResource("BeachMistGradient")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="BeachDriftGradient"]
+offsets = PackedFloat32Array(0, 0.6, 1)
+colors = PackedColorArray(1, 1, 1, 0.5, 1, 1, 1, 0.26, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="BeachDriftTexture"]
+gradient = SubResource("BeachDriftGradient")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
 
 [node name="ExpeditionController" type="Node2D"]
 script = ExtResource("2_controller")
@@ -14,6 +45,249 @@ expedition_id = &"shipbreaker_beach"
 expedition_name = "Shipbreaker Beach"
 shard_id = &"shipbreaker_prism_shard"
 shard_name = "First Prism Shard"
+
+[node name="Scenery" type="Node2D" parent="."]
+z_index = -1
+
+[node name="Sea" type="Sprite2D" parent="Scenery"]
+z_index = -4
+texture_filter = 1
+texture_repeat = 2
+position = Vector2(-720, -430)
+texture = ExtResource("9_water")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1440, 300)
+
+[node name="MistWest" type="Sprite2D" parent="Scenery"]
+z_index = -3
+texture_filter = 2
+position = Vector2(-430, -280)
+scale = Vector2(2.8, 1.5)
+texture = SubResource("BeachMistTexture")
+
+[node name="MistCenter" type="Sprite2D" parent="Scenery"]
+z_index = -3
+texture_filter = 2
+position = Vector2(40, -320)
+scale = Vector2(3.4, 1.7)
+texture = SubResource("BeachMistTexture")
+
+[node name="MistEast" type="Sprite2D" parent="Scenery"]
+z_index = -3
+texture_filter = 2
+position = Vector2(470, -270)
+scale = Vector2(2.6, 1.4)
+texture = SubResource("BeachMistTexture")
+
+[node name="Foam" type="Polygon2D" parent="Scenery"]
+z_index = -3
+color = Color(0.72, 0.8, 0.83, 0.45)
+polygon = PackedVector2Array(-720, -168, -690, -169, -660, -173, -630, -178, -600, -183, -570, -187, -540, -189, -510, -191, -480, -191, -450, -191, -420, -191, -390, -193, -360, -196, -330, -201, -300, -207, -270, -213, -240, -218, -210, -222, -180, -222, -150, -220, -120, -215, -90, -208, -60, -200, -30, -192, 0, -185, 30, -181, 60, -179, 90, -179, 120, -180, 150, -182, 180, -183, 210, -183, 240, -182, 270, -180, 300, -178, 330, -176, 360, -176, 390, -178, 420, -183, 450, -189, 480, -197, 510, -206, 540, -213, 570, -218, 600, -221, 630, -221, 660, -218, 690, -213, 720, -208, 720, -187, 690, -192, 660, -197, 630, -200, 600, -200, 570, -197, 540, -192, 510, -185, 480, -176, 450, -168, 420, -162, 390, -157, 360, -155, 330, -155, 300, -157, 270, -159, 240, -161, 210, -162, 180, -162, 150, -161, 120, -159, 90, -158, 60, -158, 30, -160, 0, -164, -30, -171, -60, -179, -90, -187, -120, -194, -150, -199, -180, -201, -210, -201, -240, -197, -270, -192, -300, -186, -330, -180, -360, -175, -390, -172, -420, -170, -450, -170, -480, -170, -510, -170, -540, -168, -570, -166, -600, -162, -630, -157, -660, -152, -690, -148, -720, -147)
+
+[node name="SandGround" type="Polygon2D" parent="Scenery"]
+z_index = -2
+texture_filter = 1
+texture_repeat = 2
+polygon = PackedVector2Array(-720, -152, -690, -153, -660, -157, -630, -162, -600, -167, -570, -171, -540, -173, -510, -175, -480, -175, -450, -175, -420, -175, -390, -177, -360, -180, -330, -185, -300, -191, -270, -197, -240, -202, -210, -206, -180, -206, -150, -204, -120, -199, -90, -192, -60, -184, -30, -176, 0, -169, 30, -165, 60, -163, 90, -163, 120, -164, 150, -166, 180, -167, 210, -167, 240, -166, 270, -164, 300, -162, 330, -160, 360, -160, 390, -162, 420, -167, 450, -173, 480, -181, 510, -190, 540, -197, 570, -202, 600, -205, 630, -205, 660, -202, 690, -197, 720, -192, 720, 430, -720, 430)
+texture = ExtResource("8_sand")
+
+[node name="WetSand" type="Polygon2D" parent="Scenery"]
+z_index = -1
+color = Color(0.32, 0.4, 0.45, 0.5)
+polygon = PackedVector2Array(-720, -153, -690, -154, -660, -158, -630, -163, -600, -168, -570, -172, -540, -174, -510, -176, -480, -176, -450, -176, -420, -176, -390, -178, -360, -181, -330, -186, -300, -192, -270, -198, -240, -203, -210, -207, -180, -207, -150, -205, -120, -200, -90, -193, -60, -185, -30, -177, 0, -170, 30, -166, 60, -164, 90, -164, 120, -165, 150, -167, 180, -168, 210, -168, 240, -167, 270, -165, 300, -163, 330, -161, 360, -161, 390, -163, 420, -168, 450, -174, 480, -182, 510, -191, 540, -198, 570, -203, 600, -206, 630, -206, 660, -203, 690, -198, 720, -193, 720, -166, 690, -171, 660, -176, 630, -179, 600, -179, 570, -176, 540, -171, 510, -164, 480, -155, 450, -147, 420, -141, 390, -136, 360, -134, 330, -134, 300, -136, 270, -138, 240, -140, 210, -141, 180, -141, 150, -140, 120, -138, 90, -137, 60, -137, 30, -139, 0, -143, -30, -150, -60, -158, -90, -166, -120, -173, -150, -178, -180, -180, -210, -180, -240, -176, -270, -171, -300, -165, -330, -159, -360, -154, -390, -151, -420, -149, -450, -149, -480, -149, -510, -149, -540, -147, -570, -145, -600, -141, -630, -136, -660, -131, -690, -127, -720, -126)
+
+[node name="WreckMainSprite" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-128, -94)
+texture = ExtResource("10_wreck")
+
+[node name="WreckBowSprite" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(166, -220)
+scale = Vector2(0.7, 0.7)
+rotation = -0.2
+texture = ExtResource("10_wreck")
+
+[node name="RockEastSprite" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(346, 35)
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("13_rocks")
+
+[node name="MastWest" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-236, -36)
+rotation = 0.32
+texture = ExtResource("11_mast")
+
+[node name="MastShore" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(96, -168)
+scale = Vector2(0.9, 0.9)
+rotation = -0.73
+texture = ExtResource("11_mast")
+
+[node name="MastEast" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(330, -30)
+scale = Vector2(0.8, 0.8)
+rotation = 1.22
+texture = ExtResource("11_mast")
+
+[node name="TimberA" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(86, -22)
+rotation = 0.17
+texture = ExtResource("12_timber")
+
+[node name="TimberB" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-352, 74)
+rotation = -0.35
+texture = ExtResource("12_timber")
+
+[node name="TimberC" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(238, 152)
+rotation = 0.6
+texture = ExtResource("12_timber")
+
+[node name="TimberD" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-118, 142)
+rotation = -0.14
+texture = ExtResource("12_timber")
+
+[node name="TimberE" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(430, -58)
+scale = Vector2(0.9, 0.9)
+rotation = 0.26
+texture = ExtResource("12_timber")
+flip_h = true
+
+[node name="RocksWest" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-424, 158)
+scale = Vector2(1.25, 1.25)
+rotation = 0.17
+texture = ExtResource("13_rocks")
+
+[node name="RocksSouthEast" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(418, 196)
+rotation = -0.26
+texture = ExtResource("13_rocks")
+flip_h = true
+
+[node name="RocksShore" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-58, -186)
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("13_rocks")
+
+[node name="RocksMid" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(250, 64)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("13_rocks")
+flip_h = true
+
+[node name="PoolA" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-72, 66)
+texture = ExtResource("14_pool")
+
+[node name="PoolB" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(192, 14)
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("14_pool")
+
+[node name="PoolWest" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-360, -26)
+texture = ExtResource("14_pool")
+flip_h = true
+
+[node name="PoolSouth" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(330, 150)
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("14_pool")
+
+[node name="PoolShore" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-200, -16)
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("14_pool")
+
+[node name="RocksSouth" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(150, 300)
+scale = Vector2(1.05, 1.05)
+rotation = 0.3
+texture = ExtResource("13_rocks")
+
+[node name="TimberSouth" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(292, 318)
+rotation = 0.5
+texture = ExtResource("12_timber")
+
+[node name="PoolSouthB" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-206, 296)
+scale = Vector2(0.95, 0.95)
+texture = ExtResource("14_pool")
+
+[node name="WreckFragment" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(418, 300)
+scale = Vector2(0.5, 0.5)
+rotation = 0.6
+texture = ExtResource("10_wreck")
+
+[node name="SandDriftA" type="Sprite2D" parent="Scenery"]
+z_index = -2
+texture_filter = 2
+modulate = Color(0.66, 0.72, 0.77, 0.55)
+position = Vector2(150, 214)
+scale = Vector2(2.8, 1.9)
+texture = SubResource("BeachDriftTexture")
+
+[node name="SandDriftB" type="Sprite2D" parent="Scenery"]
+z_index = -2
+texture_filter = 2
+modulate = Color(0.25, 0.3, 0.35, 0.6)
+position = Vector2(-200, 118)
+scale = Vector2(3.0, 2.0)
+texture = SubResource("BeachDriftTexture")
+
+[node name="SandDriftC" type="Sprite2D" parent="Scenery"]
+z_index = -2
+texture_filter = 2
+modulate = Color(0.66, 0.72, 0.77, 0.5)
+position = Vector2(-322, 312)
+scale = Vector2(2.2, 1.6)
+texture = SubResource("BeachDriftTexture")
+
+[node name="SandDriftD" type="Sprite2D" parent="Scenery"]
+z_index = -2
+texture_filter = 2
+modulate = Color(0.25, 0.3, 0.35, 0.55)
+position = Vector2(360, 126)
+scale = Vector2(2.4, 1.6)
+texture = SubResource("BeachDriftTexture")
+
+[node name="ShoreLine" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ShoreLine"]
+build_mode = 1
+polygon = PackedVector2Array(-1400, -152, -720, -152, -690, -153, -660, -157, -630, -162, -600, -167, -570, -171, -540, -173, -510, -175, -480, -175, -450, -175, -420, -175, -390, -177, -360, -180, -330, -185, -300, -191, -270, -197, -240, -202, -210, -206, -180, -206, -150, -204, -120, -199, -90, -192, -60, -184, -30, -176, 0, -169, 30, -165, 60, -163, 90, -163, 120, -164, 150, -166, 180, -167, 210, -167, 240, -166, 270, -164, 300, -162, 330, -160, 360, -160, 390, -162, 420, -167, 450, -173, 480, -181, 510, -190, 540, -197, 570, -202, 600, -205, 630, -205, 660, -202, 690, -197, 720, -192, 1400, -192)
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector2(0, 190)
@@ -37,18 +311,21 @@ position = Vector2(-255, 12)
 value = 5
 
 [node name="WreckMain" parent="." instance=ExtResource("7_obstacle")]
+visible = false
 position = Vector2(-128, -94)
 obstacle_size = Vector2(196, 92)
 obstacle_color = Color(0.3, 0.22, 0.15, 1)
 style = "wreck"
 
 [node name="WreckBow" parent="." instance=ExtResource("7_obstacle")]
+visible = false
 position = Vector2(166, -220)
 obstacle_size = Vector2(136, 54)
 obstacle_color = Color(0.36, 0.27, 0.18, 1)
 style = "wreck"
 
 [node name="RockEast" parent="." instance=ExtResource("7_obstacle")]
+visible = false
 position = Vector2(346, 35)
 obstacle_size = Vector2(68, 49)
 obstacle_color = Color(0.39, 0.4, 0.35, 1)

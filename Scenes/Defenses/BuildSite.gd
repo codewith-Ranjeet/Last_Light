@@ -6,12 +6,16 @@ extends Node2D
 
 var built: bool = false
 var building: bool = false
+var site_key: StringName = &""
+var structure: Node = null
 
 const DAY_PHASE := 0
 
 
 func _ready() -> void:
 	add_to_group("player_interactable")
+	add_to_group("build_site")
+	site_key = StringName(name)
 	queue_redraw()
 
 
@@ -35,21 +39,62 @@ func interact() -> bool:
 	if manager == null or manager.current_state != DAY_PHASE:
 		return false
 	building = true
-	var structure := structure_scene.instantiate()
+	var instance := structure_scene.instantiate()
 	if not manager.spend_salvage(salvage_cost):
-		structure.free()
+		instance.free()
 		building = false
 		return false
-	built = true
-	get_parent().add_child(structure)
-	structure.global_position = global_position
-	if manager.has_method("apply_defense_upgrades"):
-		manager.apply_defense_upgrades(structure)
-	if structure.has_method("apply_campaign_upgrades"):
-		structure.apply_campaign_upgrades()
-	CombatFeedback.burst(get_parent(), global_position, Color(0.72, 0.91, 0.68), 22.0)
-	queue_redraw()
+	_place_structure(instance)
+	building = false
+	if manager.has_method("record_built_defense"):
+		manager.record_built_defense(site_key, structure_scene.resource_path)
 	return true
+
+
+# Recreate a defense recorded on the persistent campaign root. Called when the
+# replaceable world (the Lighthouse Yard) is reloaded, e.g. after an expedition.
+func restore_built_defense(structure_path: String) -> void:
+	if built or structure_path.is_empty():
+		return
+	var scene := load(structure_path) as PackedScene
+	if scene == null:
+		return
+	_place_structure(scene.instantiate())
+
+
+func _place_structure(instance: Node) -> void:
+	if instance == null:
+		return
+	built = true
+	structure = instance
+	get_parent().add_child(instance)
+	instance.global_position = global_position
+	var manager := get_tree().get_first_node_in_group("campaign_manager")
+	if manager != null and manager.has_method("apply_defense_upgrades"):
+		manager.apply_defense_upgrades(instance)
+	if instance.has_method("apply_campaign_upgrades"):
+		instance.apply_campaign_upgrades()
+	CombatFeedback.burst(get_parent(), global_position, Color(0.72, 0.91, 0.68), 22.0)
+	instance.tree_exited.connect(_on_structure_gone, CONNECT_ONE_SHOT)
+	queue_redraw()
+
+
+func _on_structure_gone() -> void:
+	structure = null
+	if not is_inside_tree():
+		return
+	var manager := get_tree().get_first_node_in_group("campaign_manager")
+	if manager == null:
+		return
+	# A world swap frees the whole Yard; keep the campaign record so the defense
+	# is rebuilt on return. Only a defense that leaves while its own world is
+	# still active is a genuine removal (destroyed or expired) -> free the site.
+	if manager.has_method("is_active_world") and not manager.is_active_world(get_parent()):
+		return
+	built = false
+	if manager.has_method("release_built_defense"):
+		manager.release_built_defense(site_key)
+	queue_redraw()
 
 
 func _draw() -> void:

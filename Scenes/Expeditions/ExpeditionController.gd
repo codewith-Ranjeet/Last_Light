@@ -89,10 +89,12 @@ func notify_shard_secured() -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(-640, -360, 1280, 720), _ground_color(), true)
+	# Shipbreaker Beach paints its sea, sand and props with layered pixel-art
+	# scenery nodes in the scene file; keep the procedural ground fill for the
+	# other expeditions.
+	if expedition_id != &"shipbreaker_beach":
+		draw_rect(Rect2(-640, -360, 1280, 720), _ground_color(), true)
 	match expedition_id:
-		&"shipbreaker_beach":
-			_draw_beach()
 		&"saltwood_forest":
 			_draw_forest()
 		&"drowned_chapel":
@@ -110,20 +112,6 @@ func _ground_color() -> Color:
 		&"drowned_chapel":
 			return Color(0.13, 0.23, 0.28)
 	return Color(0.1, 0.12, 0.12)
-
-
-func _draw_beach() -> void:
-	draw_rect(Rect2(-640, -360, 1280, 115), Color(0.12, 0.27, 0.32), true)
-	for index in range(9):
-		var y := -330.0 + float(index) * 15.0
-		var points := PackedVector2Array()
-		for step in range(17):
-			var x := -620.0 + float(step) * 78.0
-			points.append(Vector2(x, y + sin(float(step) * 0.8 + float(index)) * 3.5))
-		draw_polyline(points, Color(0.48, 0.67, 0.66, 0.25), 1.0, true)
-	draw_rect(Rect2(-640, -195, 1280, 34), Color(0.62, 0.55, 0.39, 0.2), true)
-	for x in [-390.0, -230.0, 300.0, 450.0]:
-		draw_circle(Vector2(x, -30.0 + fmod(absf(x), 70.0)), 3.0, Color(0.79, 0.72, 0.57, 0.46))
 
 
 func _draw_forest() -> void:

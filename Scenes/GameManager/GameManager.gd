@@ -69,6 +69,10 @@ var is_game_over: bool = false
 var world_transition_in_progress: bool = false
 var active_world: Node2D
 
+# Persistent record of built defenses so they survive world replacement (e.g. an
+# expedition reloading the Lighthouse Yard). Keyed by build-site name -> scene path.
+var built_defenses: Dictionary = {}
+
 # Campaign data lives on this persistent root node, outside the replaceable world.
 var beacon_count: int = 0
 var salvage: int = 0
@@ -153,6 +157,7 @@ func begin_new_campaign() -> void:
 	salvage = 0
 	secured_shard_ids.clear()
 	completed_expedition_ids.clear()
+	built_defenses.clear()
 	discovered_story_clue_ids.clear()
 	story_clue_entries.clear()
 	latest_story_clue_title = ""
@@ -334,10 +339,38 @@ func replace_world(scene: PackedScene) -> bool:
 		world_container.remove_child(previous_world)
 		previous_world.queue_free()
 	world_container.add_child(next_world)
+	_restore_defenses(next_world)
 	_apply_phase_to_world()
 	world_changed.emit(next_world)
 	world_transition_in_progress = false
 	return true
+
+
+func is_active_world(world: Node) -> bool:
+	return world != null and world == active_world and is_instance_valid(active_world) and active_world.is_inside_tree()
+
+
+func record_built_defense(site_key: StringName, structure_path: String) -> void:
+	if site_key == &"" or structure_path.is_empty():
+		return
+	built_defenses[site_key] = structure_path
+
+
+func release_built_defense(site_key: StringName) -> void:
+	built_defenses.erase(site_key)
+
+
+func _restore_defenses(world: Node) -> void:
+	if world == null or built_defenses.is_empty():
+		return
+	for child in world.get_children():
+		if not child.is_in_group("build_site"):
+			continue
+		var key := StringName(child.name)
+		if not built_defenses.has(key):
+			continue
+		if child.has_method("restore_built_defense"):
+			child.restore_built_defense(String(built_defenses[key]))
 
 
 func register_lighthouse(lighthouse: Node) -> void:

@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="NightConfig" load_steps=11 format=3]
+[gd_resource type="Resource" script_class="NightConfig" format=3 uid="uid://rsk8tt87auib"]
 
-[ext_resource type="Script" path="res://Scenes/EnemySpawner/NightConfig.gd" id="1_config"]
-[ext_resource type="Script" path="res://Scenes/EnemySpawner/NightWaveConfig.gd" id="2_wave"]
-[ext_resource type="PackedScene" path="res://Scenes/Enemies/ShadowCrawler.tscn" id="3_crawler"]
+[ext_resource type="Script" uid="uid://bfw8o1q6fr70l" path="res://Scenes/EnemySpawner/NightConfig.gd" id="1_config"]
+[ext_resource type="Script" uid="uid://ch8l1spahk6rn" path="res://Scenes/EnemySpawner/NightWaveConfig.gd" id="2_wave"]
+[ext_resource type="PackedScene" uid="uid://mmtul6ypywxf" path="res://Scenes/Enemies/ShadowCrawler.tscn" id="3_crawler"]
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/Nightstalker.tscn" id="4_stalker"]
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/LightLeech.tscn" id="5_leech"]
 [ext_resource type="PackedScene" path="res://Scenes/Enemies/AshenBrute.tscn" id="6_brute"]

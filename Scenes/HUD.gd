@@ -1,23 +1,36 @@
 extends CanvasLayer
 
-@onready var hp_background = $MarginContainer/VBoxContainer/HPContainer/HPBackground
-@onready var fill_mask = $MarginContainer/VBoxContainer/HPContainer/FillMask
-@onready var hp_fill = $MarginContainer/VBoxContainer/HPContainer/FillMask/HPFill
-@onready var beacon_label = $MarginContainer/VBoxContainer/BeaconContainer/BeaconCount
-@onready var phase_label = $MarginContainer/VBoxContainer/Phase
-@onready var salvage_label = $MarginContainer/VBoxContainer/Salvage
-@onready var focus_label = $MarginContainer/VBoxContainer/FocusLabel
-@onready var focus_meter = $MarginContainer/VBoxContainer/FocusMeter
-@onready var interaction_hint = $MarginContainer/VBoxContainer/InteractionHint
+@onready var fill_mask: Control = $StatusPanel/StatusRows/HPContainer/FillMask
+@onready var hp_fill: TextureRect = $StatusPanel/StatusRows/HPContainer/FillMask/HPFill
+@onready var keeper_label: Label = $StatusPanel/StatusRows/KeeperLabel
+@onready var focus_label: Label = $StatusPanel/StatusRows/FocusRow/FocusLabel
+@onready var focus_meter: ProgressBar = $StatusPanel/StatusRows/FocusRow/FocusMeter
+@onready var status_panel: PanelContainer = $StatusPanel
+@onready var resource_panel: PanelContainer = $ResourcePanel
+@onready var beacon_label: Label = $ResourcePanel/ResourceRows/BeaconRow/BeaconCount
+@onready var salvage_label: Label = $ResourcePanel/ResourceRows/SalvageLabel
+@onready var shard_label: Label = $ResourcePanel/ResourceRows/ShardLabel
+@onready var objective_panel: PanelContainer = $ObjectivePanel
+@onready var phase_label: Label = $ObjectivePanel/ObjectiveRows/PhaseLabel
+@onready var objective_label: Label = $ObjectivePanel/ObjectiveRows/ObjectiveLabel
+@onready var alert_label: Label = $ObjectivePanel/ObjectiveRows/AlertLabel
+@onready var prompt_panel: PanelContainer = $PromptPanel
+@onready var prompt_label: Label = $PromptPanel/PromptLabel
 
-@onready var game_manager = $"../GameManager"
+@onready var game_manager: Node = $"../GameManager"
 
-@onready var full_fill_width = fill_mask.size.x
-@onready var fill_start_x = fill_mask.position.x
+@onready var full_fill_width: float = fill_mask.size.x
+@onready var fill_start_x: float = fill_mask.position.x
 
-var objective_banner: Label
+const FONT_SMALL: int = 9
+const FONT_BODY: int = 10
+const FONT_NOTICE: int = 11
+const COLOR_TEXT: Color = Color(0.9, 0.9, 0.83)
+const COLOR_AMBER: Color = Color(0.97, 0.86, 0.62)
+const COLOR_BLUE: Color = Color(0.72, 0.88, 1.0)
+const COLOR_MUTED: Color = Color(0.78, 0.84, 0.82)
+
 var expedition_notice: Label
-var campaign_status: Label
 var notice_timer: float = 0.0
 var choice_overlay: Control
 var choice_panel: PanelContainer
@@ -33,21 +46,8 @@ var ending_body: Label
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	var fill_style := StyleBoxFlat.new()
-	fill_style.bg_color = Color(0.45, 0.82, 1.0, 0.92)
-	fill_style.corner_radius_top_left = 2
-	fill_style.corner_radius_top_right = 2
-	fill_style.corner_radius_bottom_left = 2
-	fill_style.corner_radius_bottom_right = 2
-	focus_meter.add_theme_stylebox_override("fill", fill_style)
-	var background_style := StyleBoxFlat.new()
-	background_style.bg_color = Color(0.08, 0.12, 0.17, 0.92)
-	background_style.border_color = Color(0.45, 0.66, 0.76, 0.8)
-	background_style.set_border_width_all(1)
-	focus_meter.add_theme_stylebox_override("background", background_style)
-	objective_banner = _make_banner(18, 64, -410, 410)
-	expedition_notice = _make_bottom_banner(-112, -42, -380, 380)
-	campaign_status = _make_status_banner()
+	_style_hud()
+	expedition_notice = _make_bottom_banner(-104, -48, -300, 300)
 	_create_choice_overlay()
 	_create_ending_overlay()
 	if game_manager != null:
@@ -60,40 +60,28 @@ func _ready() -> void:
 		game_manager.night_event_changed.connect(_on_night_event_changed)
 
 
-func _process(_delta):
+func _process(_delta: float) -> void:
 	if game_manager == null:
 		return
 	if notice_timer > 0.0:
 		notice_timer = maxf(notice_timer - _delta, 0.0)
 		expedition_notice.visible = notice_timer > 0.0
 	update_hp()
+	keeper_label.text = "KEEPER %d/%d" % [game_manager.player_health, game_manager.player_max_health]
 	beacon_label.text = "Beacons: %d" % game_manager.beacon_count
 	salvage_label.text = "Salvage: %d" % game_manager.salvage
-	phase_label.text = game_manager.current_phase
+	shard_label.text = "Shards: %d/3" % game_manager.get_secured_shard_count()
+	phase_label.text = _clean_phase(game_manager.current_phase)
+	objective_label.text = game_manager.get_current_objective()
 	focus_meter.max_value = game_manager.focus_max
 	focus_meter.value = game_manager.focus_energy
-	focus_label.text = "Focus: %d%%" % roundi(game_manager.focus_energy / maxf(game_manager.focus_max, 1.0) * 100.0)
+	focus_label.text = "FOCUS %d%%" % roundi(game_manager.focus_energy / maxf(game_manager.focus_max, 1.0) * 100.0)
+	_update_alert()
 	var player: Node = game_manager.get_current_player()
-	interaction_hint.text = player.interaction_prompt if player != null else ""
-	objective_banner.text = game_manager.get_current_objective()
-	var player_health := "%d/%d" % [game_manager.player_health, game_manager.player_max_health]
-	campaign_status.text = "Keeper %s HP  ·  Beacons %d  ·  Salvage %d  ·  Shards %d/3" % [player_health, game_manager.beacon_count, game_manager.salvage, game_manager.get_secured_shard_count()]
-	if game_manager.is_light_suppressed():
-		campaign_status.text += "  ·  LIGHT SUPPRESSED"
-	if game_manager.focus_disrupted_timer > 0.0:
-		campaign_status.text += "  ·  DARKNESS PULSE"
+	var prompt: String = player.interaction_prompt if player != null else ""
+	prompt_label.text = prompt
+	prompt_panel.visible = not prompt.is_empty()
 	_refresh_choice_overlay()
-	if game_manager.current_state == game_manager.Phase.NIGHT:
-		var spawner: Node = game_manager.get_current_spawner()
-		if spawner != null and spawner.has_method("get_progress_text"):
-			campaign_status.text += "  ·  " + spawner.get_progress_text()
-	elif game_manager.current_state == game_manager.Phase.BOSS:
-		var boss: Node = game_manager.get_current_boss()
-		if boss != null and boss.has_method("get_health_ratio"):
-			campaign_status.text += "  ·  %s · Shepherd %d%%" % [boss.get_encounter_phase_name(), roundi(boss.get_health_ratio() * 100.0)]
-			var attack_status: String = boss.get_attack_status()
-			if attack_status != "":
-				campaign_status.text += "  ·  " + attack_status
 	_refresh_ending_overlay()
 
 #----------------Hp update-----------------
@@ -105,26 +93,6 @@ func update_hp():
 
 	fill_mask.position.x = fill_start_x
 	fill_mask.size.x = full_fill_width * percent
-
-
-func _make_banner(top: float, bottom: float, left: float, right: float) -> Label:
-	var label := Label.new()
-	label.anchor_left = 0.5
-	label.anchor_right = 0.5
-	label.offset_left = left
-	label.offset_right = right
-	label.offset_top = top
-	label.offset_bottom = bottom
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_font_size_override("font_size", 18)
-	label.add_theme_color_override("font_color", Color(0.94, 0.91, 0.79))
-	label.add_theme_color_override("font_shadow_color", Color(0.04, 0.05, 0.05, 0.95))
-	label.add_theme_constant_override("shadow_offset_x", 1)
-	label.add_theme_constant_override("shadow_offset_y", 1)
-	add_child(label)
-	return label
 
 
 func _make_bottom_banner(top: float, bottom: float, left: float, right: float) -> Label:
@@ -140,8 +108,9 @@ func _make_bottom_banner(top: float, bottom: float, left: float, right: float) -
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_font_size_override("font_size", 16)
-	label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.63))
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", FONT_NOTICE)
+	label.add_theme_color_override("font_color", COLOR_AMBER)
 	label.add_theme_color_override("font_shadow_color", Color(0.04, 0.05, 0.05, 0.95))
 	label.add_theme_constant_override("shadow_offset_x", 1)
 	label.add_theme_constant_override("shadow_offset_y", 1)
@@ -150,22 +119,77 @@ func _make_bottom_banner(top: float, bottom: float, left: float, right: float) -
 	return label
 
 
-func _make_status_banner() -> Label:
-	var label := Label.new()
-	label.anchor_left = 1.0
-	label.anchor_right = 1.0
-	label.offset_left = -510
-	label.offset_right = -20
-	label.offset_top = 20
-	label.offset_bottom = 46
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	label.add_theme_font_size_override("font_size", 15)
-	label.add_theme_color_override("font_color", Color(0.83, 0.88, 0.83))
-	label.add_theme_color_override("font_shadow_color", Color(0.04, 0.05, 0.05, 0.95))
-	label.add_theme_constant_override("shadow_offset_x", 1)
-	label.add_theme_constant_override("shadow_offset_y", 1)
-	add_child(label)
-	return label
+func _style_hud() -> void:
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.05, 0.07, 0.1, 0.72)
+	panel_style.border_color = Color(0.46, 0.58, 0.58, 0.55)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(3)
+	panel_style.content_margin_left = 5
+	panel_style.content_margin_right = 5
+	panel_style.content_margin_top = 3
+	panel_style.content_margin_bottom = 3
+	for panel in [status_panel, resource_panel, objective_panel, prompt_panel]:
+		panel.add_theme_stylebox_override("panel", panel_style)
+		_ignore_mouse(panel)
+	var fill_style := StyleBoxFlat.new()
+	fill_style.bg_color = COLOR_BLUE
+	fill_style.corner_radius_top_left = 2
+	fill_style.corner_radius_top_right = 2
+	fill_style.corner_radius_bottom_left = 2
+	fill_style.corner_radius_bottom_right = 2
+	focus_meter.add_theme_stylebox_override("fill", fill_style)
+	var meter_bg := StyleBoxFlat.new()
+	meter_bg.bg_color = Color(0.08, 0.12, 0.17, 0.92)
+	meter_bg.border_color = Color(0.45, 0.66, 0.76, 0.8)
+	meter_bg.set_border_width_all(1)
+	focus_meter.add_theme_stylebox_override("background", meter_bg)
+	_style_label(keeper_label, FONT_SMALL, COLOR_MUTED)
+	_style_label(focus_label, FONT_SMALL, COLOR_BLUE)
+	_style_label(beacon_label, FONT_BODY, COLOR_AMBER)
+	_style_label(salvage_label, FONT_BODY, COLOR_MUTED)
+	_style_label(shard_label, FONT_BODY, COLOR_BLUE)
+	_style_label(phase_label, FONT_SMALL, COLOR_AMBER)
+	_style_label(objective_label, FONT_BODY, COLOR_TEXT)
+	_style_label(alert_label, FONT_SMALL, COLOR_BLUE)
+	_style_label(prompt_label, FONT_BODY, COLOR_AMBER)
+
+
+func _style_label(target: Label, size: int, color: Color) -> void:
+	target.add_theme_font_size_override("font_size", size)
+	target.add_theme_color_override("font_color", color)
+	target.add_theme_color_override("font_shadow_color", Color(0.02, 0.03, 0.04, 0.9))
+	target.add_theme_constant_override("shadow_offset_x", 1)
+	target.add_theme_constant_override("shadow_offset_y", 1)
+
+
+func _ignore_mouse(node: Node) -> void:
+	if node is Control:
+		(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child in node.get_children():
+		_ignore_mouse(child)
+
+
+func _update_alert() -> void:
+	var text := ""
+	var color := COLOR_BLUE
+	if game_manager.is_light_suppressed():
+		text = "LIGHT SUPPRESSED"
+		color = Color(0.74, 0.56, 0.96)
+	if game_manager.focus_disrupted_timer > 0.0:
+		text = "DARKNESS PULSE" if text.is_empty() else text + " · DARKNESS PULSE"
+	alert_label.text = text
+	alert_label.add_theme_color_override("font_color", color)
+	alert_label.visible = not text.is_empty()
+
+
+func _clean_phase(raw: String) -> String:
+	var out := ""
+	for i in raw.length():
+		var cp := raw.unicode_at(i)
+		if cp < 128 or cp == 183:
+			out += raw[i]
+	return out.strip_edges().to_upper()
 
 
 func _show_notice(message: String, duration: float = 4.0) -> void:
