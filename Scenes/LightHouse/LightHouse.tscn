@@ -1,7 +1,8 @@
-[gd_scene format=3 uid="uid://bd0skjdo5nrb8"]
+[gd_scene load_steps=7 format=3 uid="uid://bd0skjdo5nrb8"]
 
 [ext_resource type="Script" uid="uid://cs104bfqenrit" path="res://Scenes/LightHouse/LightHouse.gd" id="1_5wtg8"]
 [ext_resource type="Texture2D" uid="uid://cgk6kapgrg24w" path="res://Assets/Sprites/LightHouse/LH100.png" id="2_5wtg8"]
+[ext_resource type="Script" path="res://Scenes/LightHouse/LighthouseBeam.gd" id="3_beam"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_86bm4"]
 radius = 31.0
@@ -11,8 +12,8 @@ height = 108.0
 radius = 29.0
 height = 114.0
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_ywwub"]
-radius = 57.14018
+[sub_resource type="CircleShape2D" id="CircleShape2D_lighthouse_beam"]
+radius = 380.0
 
 [node name="LightHouse" type="StaticBody2D" unique_id=1774040452]
 script = ExtResource("1_5wtg8")
@@ -36,15 +37,17 @@ position = Vector2(0, 9)
 shape = SubResource("CapsuleShape2D_5wtg8")
 debug_color = Color(0.9503649, 0.20072362, 0.26560432, 0.41960785)
 
-[node name="RepairArea" type="Area2D" parent="." unique_id=525854272]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RepairArea" unique_id=1575695545]
-visible = false
-position = Vector2(0, 10)
-shape = SubResource("CircleShape2D_ywwub")
-debug_color = Color(1.732707e-06, 0.64115316, 0.34372514, 0.41960785)
-
 [connection signal="body_entered" from="DamageArea" to="." method="_on_area_2d_body_entered"]
 [connection signal="body_exited" from="DamageArea" to="." method="_on_area_2d_body_exited"]
-[connection signal="body_entered" from="RepairArea" to="." method="_on_repair_area_body_entered"]
-[connection signal="body_exited" from="RepairArea" to="." method="_on_repair_area_body_exited"]
+
+[node name="LighthouseBeam" type="Node2D" parent="."]
+position = Vector2(0, -45)
+show_behind_parent = true
+script = ExtResource("3_beam")
+
+[node name="DetectionArea" type="Area2D" parent="LighthouseBeam"]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LighthouseBeam/DetectionArea"]
+shape = SubResource("CircleShape2D_lighthouse_beam")

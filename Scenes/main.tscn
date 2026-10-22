@@ -68,3 +68,20 @@ layout_mode = 2
 
 [node name="Phase" type="Label" parent="HUD/MarginContainer/VBoxContainer" unique_id=1731336526]
 layout_mode = 2
+
+[node name="Salvage" type="Label" parent="HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="FocusLabel" type="Label" parent="HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="FocusMeter" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(180, 10)
+layout_mode = 2
+max_value = 100.0
+show_percentage = false
+
+[node name="InteractionHint" type="Label" parent="HUD/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(280, 32)
+layout_mode = 2
+autowrap_mode = 2

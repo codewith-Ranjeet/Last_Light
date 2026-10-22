@@ -10,7 +10,6 @@ signal health_changed(current_health: int, maximum_health: int)
 
 var health: int = 100
 var destroyed: bool = false
-var player_near: bool = false
 var can_repair: bool = false
 var current_stage: int = -1
 
@@ -25,16 +24,12 @@ const DAMAGE_STAGES = [
 
 func _ready() -> void:
 	max_health = maxi(max_health, 1)
+	add_to_group("player_interactable")
 	if game_manager != null:
 		game_manager.register_lighthouse(self)
 	else:
 		health = max_health
 	update_damage_stage()
-
-
-func _physics_process(_delta: float) -> void:
-	if can_repair and player_near and Input.is_action_just_pressed("repair"):
-		repair(repair_amount)
 
 
 func damage(amount: int) -> void:
@@ -44,6 +39,7 @@ func damage(amount: int) -> void:
 	health = maxi(health - amount, 0)
 	if game_manager != null:
 		game_manager.record_lighthouse_health(health)
+	CombatFeedback.burst(get_parent(), global_position + Vector2(0, -36), Color(1.0, 0.42, 0.32), 22.0)
 	update_damage_stage()
 	health_changed.emit(health, max_health)
 
@@ -63,16 +59,6 @@ func _on_area_2d_body_exited(body: Node2D) -> void:
 		body.stop_attacking()
 
 
-func _on_repair_area_body_entered(body: Node2D) -> void:
-	if body.is_in_group("player"):
-		player_near = true
-
-
-func _on_repair_area_body_exited(body: Node2D) -> void:
-	if body.is_in_group("player"):
-		player_near = false
-
-
 func repair(amount: int) -> bool:
 	if destroyed or not can_repair or amount <= 0 or health >= max_health:
 		return false
@@ -83,7 +69,24 @@ func repair(amount: int) -> bool:
 	game_manager.record_lighthouse_health(health)
 	update_damage_stage()
 	health_changed.emit(health, max_health)
+	CombatFeedback.burst(get_parent(), global_position + Vector2(0, -40), Color(0.52, 1.0, 0.66), 18.0)
 	return true
+
+
+func get_interaction_prompt() -> String:
+	if destroyed:
+		return "Lighthouse destroyed"
+	if not can_repair:
+		return "Repair available during Day"
+	if health >= max_health:
+		return "Lighthouse stable"
+	if game_manager == null or game_manager.beacon_count < 1:
+		return "Need 1 Beacon to repair"
+	return "E Repair Lighthouse +%d HP · 1 Beacon" % repair_amount
+
+
+func interact() -> bool:
+	return repair(repair_amount)
 
 
 func update_damage_stage() -> void:

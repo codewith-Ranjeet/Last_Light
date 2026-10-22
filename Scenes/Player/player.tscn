@@ -1,10 +1,14 @@
-[gd_scene format=3 uid="uid://ctf8luwk3j587"]
+[gd_scene load_steps=6 format=3 uid="uid://ctf8luwk3j587"]
 
 [ext_resource type="Script" uid="uid://nw7lwd1dso2g" path="res://Scenes/Player/player.gd" id="1_a3d8c"]
 [ext_resource type="Texture2D" uid="uid://ctvw3nf26qiil" path="res://Assets/Sprites/Player/keeper_down.png" id="2_a3d8c"]
+[ext_resource type="Script" path="res://Scenes/Player/PlayerLight.gd" id="3_focus"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_82w5f"]
 height = 26.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_focus"]
+radius = 230.0
 
 [node name="Player" type="CharacterBody2D" unique_id=1536178064 groups=["player"]]
 collision_mask = 2
@@ -19,3 +23,13 @@ position = Vector2(0, -1)
 shape = SubResource("CapsuleShape2D_82w5f")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1482313195]
+
+[node name="LightFocus" type="Node2D" parent="."]
+script = ExtResource("3_focus")
+
+[node name="DetectionArea" type="Area2D" parent="LightFocus"]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LightFocus/DetectionArea"]
+shape = SubResource("CircleShape2D_focus")

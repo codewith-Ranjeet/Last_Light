@@ -21,8 +21,9 @@ As darkness engulfs the world, shadow creatures emerge every night to extinguish
 - 4-direction movement
 - Mouse aiming
 - Fireball shooting
+- Right-click focused light that aims at the cursor, consumes a regenerating Focus meter, and slows enemies in its cone
 - Directional sprites
-- Beacon inventory
+- Interaction prompts for repairs and fixed build sites
 
 ---
 
@@ -31,8 +32,10 @@ As darkness engulfs the world, shadow creatures emerge every night to extinguish
 - Projectile collision
 - Enemy health system
 - Enemy death
+- Hit flashes and short impact bursts
 - Beacon drops on enemy death
 - Automatic beacon collection
+- Focused light and the nighttime lighthouse sweep slow Shadow Crawlers
 
 ---
 
@@ -42,10 +45,20 @@ As darkness engulfs the world, shadow creatures emerge every night to extinguish
 - Health system
 - Custom HP Bar
 - Repair mechanic
-- Repairs consume Beacons
+- Repairs restore 5 HP per Beacon
 - Cannot repair at full HP
 - Repair available only during Day
 - Game Over when destroyed
+- Visible sweeping beam slows enemies caught by its cone at night
+
+## 🧱 Resources & Defenses
+
+- Salvage caches grant campaign Salvage when collected
+- Four fixed build sites show their cost and availability before construction
+- Thorn Barricades block enemies, take damage, and break
+- Snare Traps damage and briefly immobilize one enemy when triggered
+- Ward Lanterns create visible fields that slow nearby Shadow Crawlers
+- Press **E** near the Lighthouse to repair or near a build site to construct; repairs and construction are Day-only
 
 ---
 
@@ -100,7 +113,7 @@ The prototype starts in Day 1 and follows Day → Dusk → Night → Dawn before
 
 - Beacons drop from defeated enemies
 - Automatically collected by the player
-- Stored in player inventory
+- Stored in campaign state
 - Required to repair the lighthouse
 - One repair consumes one Beacon
 
@@ -110,7 +123,10 @@ The prototype starts in Day 1 and follows Day → Dusk → Night → Dawn before
 
 - Lighthouse custom HP Bar
 - Beacon counter
+- Salvage counter
+- Focus meter
 - Current phase indicator
+- Contextual interaction and cost prompts
 
 ---
 
@@ -121,7 +137,8 @@ The prototype starts in Day 1 and follows Day → Dusk → Night → Dawn before
 | **W A S D** | Move |
 | **Mouse** | Aim |
 | **Left Click** | Shoot |
-| **E** | Repair Lighthouse |
+| **Right Click (hold)** | Focus light toward the cursor |
+| **E** | Repair the Lighthouse or build at a nearby site |
 
 ---
 
@@ -145,12 +162,15 @@ Docs/
 
 Scenes/
     Beacon/
+    Defenses/
     Enemies/
+    Effects/
     EnemySpawner/
     GameManager/
     LightHouse/
     Player/
     Projectiles/
+    Resources/
     Worlds/
     HUD.gd
 

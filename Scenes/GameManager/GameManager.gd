@@ -5,6 +5,7 @@ signal campaign_resources_changed(beacon_count: int, salvage: int)
 signal shard_secured(shard_id: StringName, secured_count: int)
 signal world_changed(world: Node)
 signal game_over_started
+signal focus_changed(focus_energy: float, focus_max: float)
 
 enum Phase {
 	DAY,
@@ -20,6 +21,9 @@ const STARTING_WORLD_SCENE = preload("res://Scenes/Worlds/LighthouseYard.tscn")
 @export var dusk_duration: float = 5.0
 @export var night_duration: float = 20.0
 @export var dawn_duration: float = 5.0
+@export var focus_max: float = 100.0
+@export var focus_drain_per_second: float = 34.0
+@export var focus_recovery_per_second: float = 24.0
 
 @onready var world_container: Node2D = get_node_or_null("../WorldContainer")
 
@@ -39,6 +43,7 @@ var lighthouse_max_health: int = 100
 var secured_shard_ids: Array[StringName] = []
 var selected_upgrades: Array[StringName] = []
 var selected_lens: StringName = &""
+var focus_energy: float = 100.0
 
 
 func _ready() -> void:
@@ -75,6 +80,7 @@ func _initialize_campaign() -> void:
 func begin_new_campaign() -> void:
 	if world_transition_in_progress:
 		return
+	focus_max = maxf(focus_max, 1.0)
 	get_tree().paused = false
 	day_number = 1
 	beacon_count = 0
@@ -82,6 +88,7 @@ func begin_new_campaign() -> void:
 	secured_shard_ids.clear()
 	selected_upgrades.clear()
 	selected_lens = &""
+	focus_energy = focus_max
 	is_game_over = false
 	time_elapsed = 0.0
 	lighthouse_health = lighthouse_max_health
@@ -91,6 +98,7 @@ func begin_new_campaign() -> void:
 
 	_set_phase(Phase.DAY, true)
 	campaign_resources_changed.emit(beacon_count, salvage)
+	focus_changed.emit(focus_energy, focus_max)
 
 
 func _set_phase(next_phase: int, force: bool = false) -> bool:
@@ -174,6 +182,12 @@ func get_current_lighthouse() -> Node:
 	return active_world.get_node_or_null("LightHouse")
 
 
+func get_current_player() -> Node:
+	if not is_instance_valid(active_world):
+		return null
+	return active_world.get_node_or_null("Player")
+
+
 func get_current_spawner() -> Node:
 	if not is_instance_valid(active_world):
 		return null
@@ -243,6 +257,22 @@ func spend_salvage(amount: int) -> bool:
 	salvage -= amount
 	campaign_resources_changed.emit(beacon_count, salvage)
 	return true
+
+
+func update_focus(delta: float, requesting_focus: bool) -> bool:
+	if is_game_over or delta <= 0.0:
+		return false
+
+	var previous_energy := focus_energy
+	if requesting_focus:
+		if focus_energy > 0.0:
+			focus_energy = maxf(focus_energy - focus_drain_per_second * delta, 0.0)
+	else:
+		focus_energy = minf(focus_energy + focus_recovery_per_second * delta, focus_max)
+
+	if not is_equal_approx(previous_energy, focus_energy):
+		focus_changed.emit(focus_energy, focus_max)
+	return requesting_focus and focus_energy > 0.0
 
 
 func secure_shard(shard_id: StringName) -> bool:
