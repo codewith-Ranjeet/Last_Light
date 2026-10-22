@@ -1,0 +1,55 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Player/player.tscn" id="1_player"]
+[ext_resource type="Script" path="res://Scenes/Expeditions/ExpeditionController.gd" id="2_controller"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/ExpeditionExit.tscn" id="3_exit"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/PrismShard.tscn" id="4_shard"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/StoryClue.tscn" id="5_clue"]
+[ext_resource type="PackedScene" path="res://Scenes/Resources/SalvagePickup.tscn" id="6_salvage"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/ExpeditionObstacle.tscn" id="7_obstacle"]
+[ext_resource type="PackedScene" path="res://Scenes/Enemies/BellTaker.tscn" id="8_bell_taker"]
+
+[node name="ExpeditionController" type="Node2D"]
+script = ExtResource("2_controller")
+expedition_id = &"drowned_chapel"
+expedition_name = "Drowned Chapel"
+shard_id = &"chapel_prism_shard"
+shard_name = "Third Prism Shard"
+requires_bell_taker = true
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(0, 190)
+
+[node name="ExpeditionExit" parent="." instance=ExtResource("3_exit")]
+position = Vector2(0, 130)
+
+[node name="PrismShard" parent="." instance=ExtResource("4_shard")]
+position = Vector2(0, -263)
+shard_id = &"chapel_prism_shard"
+shard_title = "Third Prism Shard"
+locked = true
+
+[node name="KeeperRemnant" parent="." instance=ExtResource("5_clue")]
+position = Vector2(-115, -156)
+clue_id = &"chapel_keeper_remnant"
+clue_title = "The Keeper's Final Note"
+clue_text = "I have heard the bell beneath the water. The Shepherd is what remains of me after the lens broke. I wanted the light to end the pain; I only taught the darkness my name."
+
+[node name="OptionalSalvageCache" parent="." instance=ExtResource("6_salvage")]
+position = Vector2(-337, -35)
+value = 7
+
+[node name="BellTaker" parent="." instance=ExtResource("8_bell_taker")]
+position = Vector2(0, -86)
+
+[node name="PillarWest" parent="." instance=ExtResource("7_obstacle")]
+position = Vector2(-246, -62)
+obstacle_size = Vector2(48, 168)
+obstacle_color = Color(0.34, 0.42, 0.41, 1)
+style = "pillar"
+
+[node name="PillarEast" parent="." instance=ExtResource("7_obstacle")]
+position = Vector2(246, -62)
+obstacle_size = Vector2(48, 168)
+obstacle_color = Color(0.34, 0.42, 0.41, 1)
+style = "pillar"

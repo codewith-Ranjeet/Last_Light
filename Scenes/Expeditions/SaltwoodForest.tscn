@@ -1,0 +1,67 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Player/player.tscn" id="1_player"]
+[ext_resource type="Script" path="res://Scenes/Expeditions/ExpeditionController.gd" id="2_controller"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/ExpeditionExit.tscn" id="3_exit"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/PrismShard.tscn" id="4_shard"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/StoryClue.tscn" id="5_clue"]
+[ext_resource type="PackedScene" path="res://Scenes/Resources/SalvagePickup.tscn" id="6_salvage"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/ExpeditionObstacle.tscn" id="7_obstacle"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/VeilBarrier.tscn" id="8_barrier"]
+
+[node name="ExpeditionController" type="Node2D"]
+script = ExtResource("2_controller")
+expedition_id = &"saltwood_forest"
+expedition_name = "Saltwood Forest"
+shard_id = &"saltwood_prism_shard"
+shard_name = "Second Prism Shard"
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(0, 190)
+
+[node name="ExpeditionExit" parent="." instance=ExtResource("3_exit")]
+position = Vector2(0, 130)
+
+[node name="PrismShard" parent="." instance=ExtResource("4_shard")]
+position = Vector2(0, -253)
+shard_id = &"saltwood_prism_shard"
+shard_title = "Second Prism Shard"
+
+[node name="KeeperJournal" parent="." instance=ExtResource("5_clue")]
+position = Vector2(-88, -170)
+clue_id = &"saltwood_keeper_journal"
+clue_title = "Keeper's Journal"
+clue_text = "The forest does not hide from the lighthouse. It bends toward it. I fear the beam is a beacon to the Veil, and every shard I draw closer may make the pull stronger."
+
+[node name="OptionalSalvageCache" parent="." instance=ExtResource("6_salvage")]
+position = Vector2(372, -204)
+value = 6
+
+[node name="VeilBarrier" parent="." instance=ExtResource("8_barrier")]
+position = Vector2(0, -42)
+barrier_size = Vector2(320, 40)
+reveal_seconds = 1.15
+
+[node name="TreeWestFront" parent="." instance=ExtResource("7_obstacle")]
+position = Vector2(-245, 78)
+obstacle_size = Vector2(72, 120)
+obstacle_color = Color(0.25, 0.21, 0.15, 1)
+style = "tree"
+
+[node name="TreeEastFront" parent="." instance=ExtResource("7_obstacle")]
+position = Vector2(246, 26)
+obstacle_size = Vector2(80, 130)
+obstacle_color = Color(0.17, 0.25, 0.16, 1)
+style = "tree"
+
+[node name="TreeWestDeep" parent="." instance=ExtResource("7_obstacle")]
+position = Vector2(-286, -218)
+obstacle_size = Vector2(84, 142)
+obstacle_color = Color(0.19, 0.28, 0.18, 1)
+style = "tree"
+
+[node name="TreeEastDeep" parent="." instance=ExtResource("7_obstacle")]
+position = Vector2(278, -228)
+obstacle_size = Vector2(90, 150)
+obstacle_color = Color(0.22, 0.27, 0.17, 1)
+style = "tree"

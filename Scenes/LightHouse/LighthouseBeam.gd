@@ -27,6 +27,8 @@ func _process(delta: float) -> void:
 	queue_redraw()
 	if campaign_manager == null or campaign_manager.current_state != NIGHT_PHASE:
 		return
+	if campaign_manager.has_method("is_light_suppressed") and campaign_manager.is_light_suppressed():
+		return
 	effect_timer -= delta
 	if effect_timer > 0.0:
 		return
@@ -51,6 +53,8 @@ func _make_sector(radius: float, half_angle: float, arc_steps: int) -> PackedVec
 
 func _draw() -> void:
 	var nighttime: bool = campaign_manager != null and campaign_manager.current_state == NIGHT_PHASE
+	var suppressed: bool = campaign_manager != null and campaign_manager.has_method("is_light_suppressed") and campaign_manager.is_light_suppressed()
 	var alpha := 0.11 if nighttime else 0.035
-	draw_colored_polygon(sector_polygon, Color(1.0, 0.82, 0.48, alpha))
-	draw_polyline(PackedVector2Array([sector_polygon[1], Vector2.ZERO, sector_polygon[-1]]), Color(1.0, 0.88, 0.62, alpha * 2.6), 1.0, true)
+	var beam_color := Color(0.38, 0.29, 0.48) if suppressed else Color(1.0, 0.82, 0.48)
+	draw_colored_polygon(sector_polygon, Color(beam_color.r, beam_color.g, beam_color.b, alpha))
+	draw_polyline(PackedVector2Array([sector_polygon[1], Vector2.ZERO, sector_polygon[-1]]), Color(beam_color.r, beam_color.g, beam_color.b, alpha * 2.6), 1.0, true)

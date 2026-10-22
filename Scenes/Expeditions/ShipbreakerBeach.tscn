@@ -1,0 +1,55 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Player/player.tscn" id="1_player"]
+[ext_resource type="Script" path="res://Scenes/Expeditions/ExpeditionController.gd" id="2_controller"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/ExpeditionExit.tscn" id="3_exit"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/PrismShard.tscn" id="4_shard"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/StoryClue.tscn" id="5_clue"]
+[ext_resource type="PackedScene" path="res://Scenes/Resources/SalvagePickup.tscn" id="6_salvage"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/ExpeditionObstacle.tscn" id="7_obstacle"]
+
+[node name="ExpeditionController" type="Node2D"]
+script = ExtResource("2_controller")
+expedition_id = &"shipbreaker_beach"
+expedition_name = "Shipbreaker Beach"
+shard_id = &"shipbreaker_prism_shard"
+shard_name = "First Prism Shard"
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(0, 190)
+
+[node name="ExpeditionExit" parent="." instance=ExtResource("3_exit")]
+position = Vector2(0, 130)
+
+[node name="PrismShard" parent="." instance=ExtResource("4_shard")]
+position = Vector2(222, -128)
+shard_id = &"shipbreaker_prism_shard"
+shard_title = "First Prism Shard"
+
+[node name="SailorsLog" parent="." instance=ExtResource("5_clue")]
+position = Vector2(128, -78)
+clue_id = &"shipbreaker_sailors_log"
+clue_title = "Sailor's Log"
+clue_text = "The previous Keeper came aboard before the light failed. They carried a sliver of glass wrapped in lighthouse linen and asked where the wrecks drifted when the tide turned black."
+
+[node name="OptionalSalvageCache" parent="." instance=ExtResource("6_salvage")]
+position = Vector2(-255, 12)
+value = 5
+
+[node name="WreckMain" parent="." instance=ExtResource("7_obstacle")]
+position = Vector2(-128, -94)
+obstacle_size = Vector2(196, 92)
+obstacle_color = Color(0.3, 0.22, 0.15, 1)
+style = "wreck"
+
+[node name="WreckBow" parent="." instance=ExtResource("7_obstacle")]
+position = Vector2(166, -220)
+obstacle_size = Vector2(136, 54)
+obstacle_color = Color(0.36, 0.27, 0.18, 1)
+style = "wreck"
+
+[node name="RockEast" parent="." instance=ExtResource("7_obstacle")]
+position = Vector2(346, 35)
+obstacle_size = Vector2(68, 49)
+obstacle_color = Color(0.39, 0.4, 0.35, 1)
+style = "rock"

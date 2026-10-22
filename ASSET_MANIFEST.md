@@ -1,6 +1,6 @@
 # Asset Manifest
 
-No external art, audio, or downloaded assets were added for Milestone C. New visual feedback is drawn by Godot at runtime.
+No external art, audio, or downloaded assets were added for Milestones C or D. New visual feedback and expedition environment art are drawn by Godot at runtime.
 
 | Asset or effect | Source | In-game purpose | Notes |
 |---|---|---|---|
@@ -12,5 +12,15 @@ No external art, audio, or downloaded assets were added for Milestone C. New vis
 | Snare Trap | `Scenes/Defenses/SnareTrap.gd` | Shows an armed trap and its one-shot trigger | Procedural rune and trigger burst. |
 | Ward Lantern | `Scenes/Defenses/WardLantern.gd` | Shows the lantern and its slow field | Procedural field ring and lantern glyph. |
 | Salvage pickup | `Scenes/Resources/SalvagePickup.gd` | Marks collectible build material | Procedural scrap shard; no external texture. |
+| Nightstalker | `Scenes/Enemies/Nightstalker.gd` | Identifies the player hunter and its attack windup | Procedural silhouette and warning arc. |
+| Light Leech | `Scenes/Enemies/LightLeech.gd` | Shows the lighthouse suppression field | Procedural outline and pulse ring; suppression clears when defeated. |
+| Ashen Brute | `Scenes/Enemies/AshenBrute.gd` | Shows armor and the focused-light exposure state | Procedural armored silhouette and exposed outline. |
+| Bell-Taker | `Scenes/Enemies/BellTaker.gd` | Telegraphs its darkness pulse | Procedural warning ring, bell glyph, and timed CanvasModulate pulse. |
+| Expedition terrain | `Scenes/Expeditions/ExpeditionController.gd` | Gives each map a distinct beach, forest, or flooded-chapel palette | Procedural ground, tide, trees, stonework, and route markers. |
+| Wreckage and ruins | `Scenes/Expeditions/ExpeditionObstacle.gd` | Provides traversable-map obstacles | Collision-backed wreck, rock, tree, and pillar shapes drawn at runtime. |
+| Veil barrier | `Scenes/Expeditions/VeilBarrier.gd` | Marks the light-revealed Saltwood route | Visible progress bar and blocking collision that clears under focused light. |
+| Prism Shard | `Scenes/Expeditions/PrismShard.gd` | Marks the required campaign objective | Procedural shard glyph; collection persists through extraction. |
+| Story fragments | `Scenes/Expeditions/StoryClue.gd` | Presents the previous Keeper's expedition clues | Procedural journal slip with one-time campaign recording. |
+| Expedition board and extraction | `Scenes/Expeditions/ExpeditionBoard.gd`, `ExpeditionExit.gd` | Shows mission availability and the return point | Procedural route markers with contextual interaction prompts. |
 
-Existing player, Lighthouse, Beacon, Shadow Crawler, and projectile sprites remain in use. Their original provenance is not recorded in this repository; Milestone C did not alter or redistribute them.
+Existing player, Lighthouse, Beacon, Shadow Crawler, and projectile sprites remain in use. Their original provenance is not recorded in this repository; Milestones C and D did not alter or redistribute them.

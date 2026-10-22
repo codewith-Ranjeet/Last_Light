@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dnx8c42jg0f2p"]
+[gd_scene load_steps=10 format=3 uid="uid://dnx8c42jg0f2p"]
 
 [ext_resource type="PackedScene" uid="uid://ctf8luwk3j587" path="res://Scenes/Player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://bd0skjdo5nrb8" path="res://Scenes/LightHouse/LightHouse.tscn" id="2_lighthouse"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/Defenses/SnareTrap.tscn" id="6_snare"]
 [ext_resource type="PackedScene" path="res://Scenes/Defenses/WardLantern.tscn" id="7_ward"]
 [ext_resource type="PackedScene" path="res://Scenes/Resources/SalvagePickup.tscn" id="8_salvage"]
+[ext_resource type="PackedScene" path="res://Scenes/Expeditions/ExpeditionBoard.tscn" id="9_expedition_board"]
 
 [node name="LighthouseYard" type="Node2D"]
 
@@ -54,3 +55,6 @@ value = 3
 [node name="SalvageCacheSouth" parent="." instance=ExtResource("8_salvage")]
 position = Vector2(8, 174)
 value = 4
+
+[node name="ExpeditionBoard" parent="." instance=ExtResource("9_expedition_board")]
+position = Vector2(76, -35)

@@ -6,16 +6,29 @@ signal shard_secured(shard_id: StringName, secured_count: int)
 signal world_changed(world: Node)
 signal game_over_started
 signal focus_changed(focus_energy: float, focus_max: float)
+signal story_clue_discovered(clue_id: StringName, title: String, text: String)
+signal expedition_time_warning(seconds_remaining: float)
+signal expedition_finished(expedition_id: StringName, objective_complete: bool, reason: String)
+signal light_suppression_changed(is_suppressed: bool)
+signal darkness_pulse_started(duration: float)
+signal player_health_changed(current_health: int, maximum_health: int)
 
 enum Phase {
-	DAY,
-	DUSK,
-	NIGHT,
-	DAWN,
-	GAME_OVER
+	DAY = 0,
+	DUSK = 1,
+	NIGHT = 2,
+	DAWN = 3,
+	EXPEDITION = 4,
+	GAME_OVER = 5
 }
 
 const STARTING_WORLD_SCENE = preload("res://Scenes/Worlds/LighthouseYard.tscn")
+const SHIPBREAKER_SCENE = preload("res://Scenes/Expeditions/ShipbreakerBeach.tscn")
+const SALTWOOD_SCENE = preload("res://Scenes/Expeditions/SaltwoodForest.tscn")
+const DROWNED_CHAPEL_SCENE = preload("res://Scenes/Expeditions/DrownedChapel.tscn")
+const SHARD_SHIPBREAKER: StringName = &"shipbreaker_prism_shard"
+const SHARD_SALTWOOD: StringName = &"saltwood_prism_shard"
+const SHARD_CHAPEL: StringName = &"chapel_prism_shard"
 
 @export var day_duration: float = 20.0
 @export var dusk_duration: float = 5.0
@@ -24,6 +37,9 @@ const STARTING_WORLD_SCENE = preload("res://Scenes/Worlds/LighthouseYard.tscn")
 @export var focus_max: float = 100.0
 @export var focus_drain_per_second: float = 34.0
 @export var focus_recovery_per_second: float = 24.0
+@export var expedition_time_limit: float = 150.0
+@export var expedition_warning_seconds: float = 35.0
+@export var player_max_health: int = 100
 
 @onready var world_container: Node2D = get_node_or_null("../WorldContainer")
 
@@ -44,6 +60,17 @@ var secured_shard_ids: Array[StringName] = []
 var selected_upgrades: Array[StringName] = []
 var selected_lens: StringName = &""
 var focus_energy: float = 100.0
+var completed_expedition_ids: Array[StringName] = []
+var discovered_story_clue_ids: Array[StringName] = []
+var story_clue_entries: Dictionary = {}
+var latest_story_clue_title: String = ""
+var latest_story_clue_text: String = ""
+var active_expedition_id: StringName = &""
+var expedition_elapsed: float = 0.0
+var expedition_warning_sent: bool = false
+var focus_disrupted_timer: float = 0.0
+var player_health: int = 100
+var _light_suppressors: Dictionary = {}
 
 
 func _ready() -> void:
@@ -53,6 +80,12 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if is_game_over:
+		return
+	if focus_disrupted_timer > 0.0:
+		focus_disrupted_timer = maxf(focus_disrupted_timer - delta, 0.0)
+
+	if current_state == Phase.EXPEDITION:
+		_process_expedition_time(delta)
 		return
 
 	time_elapsed += delta
@@ -67,8 +100,12 @@ func _process(delta: float) -> void:
 		Phase.NIGHT:
 			_set_phase(Phase.DAWN)
 		Phase.DAWN:
-			day_number += 1
-			_set_phase(Phase.DAY)
+			if day_number == 4 and get_secured_shard_count() < 3:
+				# Keep Day 4 available until the mandatory shard objectives are recovered.
+				_set_phase(Phase.DAY)
+			else:
+				day_number += 1
+				_set_phase(Phase.DAY)
 
 
 func _initialize_campaign() -> void:
@@ -81,14 +118,26 @@ func begin_new_campaign() -> void:
 	if world_transition_in_progress:
 		return
 	focus_max = maxf(focus_max, 1.0)
+	player_max_health = maxi(player_max_health, 1)
 	get_tree().paused = false
 	day_number = 1
 	beacon_count = 0
 	salvage = 0
 	secured_shard_ids.clear()
+	completed_expedition_ids.clear()
+	discovered_story_clue_ids.clear()
+	story_clue_entries.clear()
+	latest_story_clue_title = ""
+	latest_story_clue_text = ""
+	active_expedition_id = &""
+	expedition_elapsed = 0.0
+	expedition_warning_sent = false
+	_light_suppressors.clear()
 	selected_upgrades.clear()
 	selected_lens = &""
 	focus_energy = focus_max
+	player_health = player_max_health
+	focus_disrupted_timer = 0.0
 	is_game_over = false
 	time_elapsed = 0.0
 	lighthouse_health = lighthouse_max_health
@@ -123,7 +172,9 @@ func _is_valid_phase_transition(from_phase: int, to_phase: int) -> bool:
 		return true
 	match from_phase:
 		Phase.DAY:
-			return to_phase == Phase.DUSK
+			return to_phase == Phase.DUSK or to_phase == Phase.EXPEDITION
+		Phase.EXPEDITION:
+			return to_phase == Phase.DAY
 		Phase.DUSK:
 			return to_phase == Phase.NIGHT
 		Phase.NIGHT:
@@ -143,6 +194,8 @@ func _label_for_phase(phase_id: int) -> String:
 			return "🌙 Night %d" % day_number
 		Phase.DAWN:
 			return "🌅 Dawn"
+		Phase.EXPEDITION:
+			return "🧭 Expedition · %s" % _expedition_name(active_expedition_id)
 		Phase.GAME_OVER:
 			return "Game Over"
 	return "Unknown"
@@ -158,6 +211,8 @@ func _duration_for_phase() -> float:
 			return maxf(night_duration, 0.0)
 		Phase.DAWN:
 			return maxf(dawn_duration, 0.0)
+		Phase.EXPEDITION:
+			return INF
 	return INF
 
 
@@ -260,7 +315,7 @@ func spend_salvage(amount: int) -> bool:
 
 
 func update_focus(delta: float, requesting_focus: bool) -> bool:
-	if is_game_over or delta <= 0.0:
+	if is_game_over or delta <= 0.0 or focus_disrupted_timer > 0.0:
 		return false
 
 	var previous_energy := focus_energy
@@ -281,6 +336,204 @@ func secure_shard(shard_id: StringName) -> bool:
 	secured_shard_ids.append(shard_id)
 	shard_secured.emit(shard_id, secured_shard_ids.size())
 	return true
+
+
+func is_shard_secured(shard_id: StringName) -> bool:
+	return secured_shard_ids.has(shard_id)
+
+
+func get_secured_shard_count() -> int:
+	return secured_shard_ids.size()
+
+
+func get_available_expedition_id() -> StringName:
+	if not is_shard_secured(SHARD_SHIPBREAKER):
+		return &"shipbreaker_beach"
+	if not is_shard_secured(SHARD_SALTWOOD):
+		return &"saltwood_forest"
+	if not is_shard_secured(SHARD_CHAPEL):
+		return &"drowned_chapel"
+	return &""
+
+
+func can_enter_expedition(expedition_id: StringName) -> bool:
+	if is_game_over or current_state != Phase.DAY or world_transition_in_progress:
+		return false
+	if expedition_id == &"shipbreaker_beach":
+		return day_number >= 2 and day_number <= 4 and not is_shard_secured(SHARD_SHIPBREAKER)
+	if expedition_id == &"saltwood_forest":
+		return day_number >= 3 and day_number <= 4 and is_shard_secured(SHARD_SHIPBREAKER) and not is_shard_secured(SHARD_SALTWOOD)
+	if expedition_id == &"drowned_chapel":
+		return day_number >= 4 and day_number <= 4 and is_shard_secured(SHARD_SHIPBREAKER) and is_shard_secured(SHARD_SALTWOOD) and not is_shard_secured(SHARD_CHAPEL)
+	return false
+
+
+func enter_expedition(expedition_id: StringName) -> bool:
+	if not can_enter_expedition(expedition_id):
+		return false
+	var expedition_scene: PackedScene
+	match expedition_id:
+		&"shipbreaker_beach":
+			expedition_scene = SHIPBREAKER_SCENE
+		&"saltwood_forest":
+			expedition_scene = SALTWOOD_SCENE
+		&"drowned_chapel":
+			expedition_scene = DROWNED_CHAPEL_SCENE
+		_:
+			return false
+
+	active_expedition_id = expedition_id
+	expedition_elapsed = 0.0
+	expedition_warning_sent = false
+	if not _set_phase(Phase.EXPEDITION):
+		active_expedition_id = &""
+		return false
+	if not replace_world(expedition_scene):
+		active_expedition_id = &""
+		_set_phase(Phase.DAY, true)
+		return false
+	return true
+
+
+func return_from_expedition(reason: String = "") -> bool:
+	if current_state != Phase.EXPEDITION or world_transition_in_progress:
+		return false
+	var returned_id := active_expedition_id
+	var shard_id := _shard_id_for_expedition(returned_id)
+	var objective_complete := shard_id != &"" and is_shard_secured(shard_id)
+	if objective_complete and not completed_expedition_ids.has(returned_id):
+		completed_expedition_ids.append(returned_id)
+	active_expedition_id = &""
+	expedition_elapsed = 0.0
+	expedition_warning_sent = false
+	_set_phase(Phase.DAY, true)
+	var replaced := replace_world(STARTING_WORLD_SCENE)
+	if replaced:
+		time_elapsed = maxf(day_duration - 8.0, 0.0)
+		expedition_finished.emit(returned_id, objective_complete, reason)
+	return replaced
+
+
+func get_expedition_time_remaining() -> float:
+	return maxf(expedition_time_limit - expedition_elapsed, 0.0)
+
+
+func _process_expedition_time(delta: float) -> void:
+	expedition_elapsed += delta
+	var seconds_remaining := get_expedition_time_remaining()
+	if not expedition_warning_sent and seconds_remaining <= maxf(expedition_warning_seconds, 0.0):
+		expedition_warning_sent = true
+		expedition_time_warning.emit(seconds_remaining)
+	if seconds_remaining <= 0.0:
+		return_from_expedition("The Keeper was returned safely as dusk fell.")
+
+
+func record_story_clue(clue_id: StringName, title: String, text: String) -> bool:
+	if clue_id == &"" or discovered_story_clue_ids.has(clue_id):
+		return false
+	discovered_story_clue_ids.append(clue_id)
+	var entry := {"title": title, "text": text}
+	story_clue_entries[clue_id] = entry
+	latest_story_clue_title = title
+	latest_story_clue_text = text
+	story_clue_discovered.emit(clue_id, title, text)
+	return true
+
+
+func has_discovered_story_clue(clue_id: StringName) -> bool:
+	return discovered_story_clue_ids.has(clue_id)
+
+
+func is_light_suppressed() -> bool:
+	return not _light_suppressors.is_empty()
+
+
+func set_light_suppressor(source_id: int, active: bool) -> void:
+	var was_suppressed := is_light_suppressed()
+	if active:
+		_light_suppressors[source_id] = true
+	else:
+		_light_suppressors.erase(source_id)
+	if was_suppressed != is_light_suppressed():
+		light_suppression_changed.emit(is_light_suppressed())
+
+
+func trigger_darkness_pulse(duration: float, focus_drain: float = 18.0) -> void:
+	focus_energy = maxf(focus_energy - maxf(focus_drain, 0.0), 0.0)
+	focus_disrupted_timer = maxf(focus_disrupted_timer, duration)
+	focus_changed.emit(focus_energy, focus_max)
+	darkness_pulse_started.emit(duration)
+
+
+func register_player(player: Node) -> void:
+	if player == null:
+		return
+	player_max_health = maxi(player_max_health, 1)
+	player_health = clampi(player_health, 1, player_max_health)
+	player.max_health = player_max_health
+	player.health = player_health
+	player_health_changed.emit(player_health, player_max_health)
+
+
+func record_player_health(value: int) -> void:
+	player_health = clampi(value, 0, player_max_health)
+	player_health_changed.emit(player_health, player_max_health)
+	if player_health == 0:
+		if current_state == Phase.EXPEDITION:
+			player_health = maxi(roundi(player_max_health * 0.5), 1)
+			call_deferred("return_from_expedition", "The Keeper was forced to retreat.")
+		else:
+			game_over()
+
+
+func get_current_expedition_controller() -> Node:
+	if not is_instance_valid(active_world):
+		return null
+	if active_world.has_method("get_objective_text"):
+		return active_world
+	return active_world.get_node_or_null("ExpeditionController")
+
+
+func get_current_objective() -> String:
+	if current_state == Phase.EXPEDITION:
+		var controller := get_current_expedition_controller()
+		if controller != null and controller.has_method("get_objective_text"):
+			return controller.get_objective_text()
+		return "Explore the expedition and return to the marked extraction point."
+	if current_state == Phase.DAY:
+		var next_id := get_available_expedition_id()
+		if next_id != &"" and can_enter_expedition(next_id):
+			return "Recover Prism Shard %d/3 · Use the expedition board" % (secured_shard_ids.size() + 1)
+		if day_number == 1:
+			return "Prepare the Lighthouse for Night 1"
+		return "Secure Prism Shards · %d/3" % secured_shard_ids.size()
+	if current_state == Phase.NIGHT or current_state == Phase.DUSK:
+		return "Defend the Lighthouse · %d/3 Prism Shards" % secured_shard_ids.size()
+	if current_state == Phase.DAWN:
+		return "The Veil retreats · %d/3 Prism Shards secured" % secured_shard_ids.size()
+	return ""
+
+
+func _shard_id_for_expedition(expedition_id: StringName) -> StringName:
+	match expedition_id:
+		&"shipbreaker_beach":
+			return SHARD_SHIPBREAKER
+		&"saltwood_forest":
+			return SHARD_SALTWOOD
+		&"drowned_chapel":
+			return SHARD_CHAPEL
+	return &""
+
+
+func _expedition_name(expedition_id: StringName) -> String:
+	match expedition_id:
+		&"shipbreaker_beach":
+			return "Shipbreaker Beach"
+		&"saltwood_forest":
+			return "Saltwood Forest"
+		&"drowned_chapel":
+			return "Drowned Chapel"
+	return "Unknown"
 
 
 func game_over() -> void:

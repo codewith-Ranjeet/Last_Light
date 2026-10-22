@@ -43,15 +43,19 @@ func update_focus(delta: float, requesting_focus: bool, aim_point: Vector2) -> v
 	if effect_timer > 0.0:
 		return
 	effect_timer = effect_interval
-	for enemy in detection_area.get_overlapping_bodies():
-		if enemy.is_in_group("enemy") and enemy.has_method("apply_focused_light") and contains_point(enemy.global_position):
-			enemy.apply_focused_light(effect_interval)
+	if detection_area.monitoring:
+		for enemy in detection_area.get_overlapping_bodies():
+			if enemy.is_in_group("enemy") and enemy.has_method("apply_focused_light") and contains_point(enemy.global_position):
+				enemy.apply_focused_light(effect_interval)
+	for target in get_tree().get_nodes_in_group("light_sensitive"):
+		if is_instance_valid(target) and target.has_method("apply_focused_light") and contains_point(target.global_position):
+			target.apply_focused_light(effect_interval)
 
 
 func aim_toward(world_point: Vector2) -> void:
-	var aim_offset := to_local(world_point)
+	var aim_offset := world_point - global_position
 	if not aim_offset.is_zero_approx():
-		rotation = aim_offset.angle()
+		global_rotation = aim_offset.angle()
 		queue_redraw()
 
 

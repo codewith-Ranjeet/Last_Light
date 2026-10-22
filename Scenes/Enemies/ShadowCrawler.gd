@@ -1,44 +1,26 @@
-extends CharacterBody2D
+extends "res://Scenes/Enemies/ShadowEnemy.gd"
 
 @export var speed: float = 80.0
 @export var damage: int = 10
 @export var attack_interval: float = 1.0
-@export var max_health: int = 20
-@export var beacon_scene: PackedScene
-
 const VEIL_LIMIT = 650
 
 var target: Node2D
 var attacking: bool = false
 var tower = null
 var attack_timer: float = 0.0
-var health: int
-var is_dead: bool = false
 var retreating: bool = false
 var retreat_direction: Vector2 = Vector2.ZERO
-var slow_timer: float = 0.0
-var movement_slow_factor: float = 1.0
-var snare_timer: float = 0.0
 
 
 func _ready():
+	super._ready()
 	target = get_parent().get_node_or_null("LightHouse")
-	health = maxi(max_health, 1)
 
 
 func _physics_process(delta):
-	if slow_timer > 0.0:
-		slow_timer = maxf(slow_timer - delta, 0.0)
-		if slow_timer == 0.0:
-			movement_slow_factor = 1.0
-	if snare_timer > 0.0:
-		snare_timer = maxf(snare_timer - delta, 0.0)
-		velocity = Vector2.ZERO
-		modulate = Color(0.43, 0.92, 0.83) if snare_timer > 0.0 else Color.WHITE
-		move_and_slide()
+	if _tick_status_effects(delta):
 		return
-	if slow_timer <= 0.0:
-		modulate = Color.WHITE
 
 	# Retreat
 	if retreating:
@@ -105,39 +87,6 @@ func stop_attacking():
 	tower = null
 
 
-#------------------ DAMAGE ------------------
-
-func damage_to_enemy(amount):
-	if is_dead or amount <= 0:
-		return
-
-	health = maxi(health - amount, 0)
-	CombatFeedback.burst(get_parent(), global_position, Color(1.0, 0.5, 0.3), 14.0)
-	var flash := create_tween()
-	flash.tween_property(self, "modulate", Color(1.0, 0.45, 0.38), 0.04)
-	flash.tween_property(self, "modulate", Color.WHITE, 0.14)
-
-	if health <= 0:
-		die()
-
-
-func die():
-	if is_dead:
-		return
-	is_dead = true
-	stop_attacking()
-	velocity = Vector2.ZERO
-	remove_from_group("enemy")
-
-	if beacon_scene and is_instance_valid(get_parent()):
-		var beacon = beacon_scene.instantiate()
-		var reward_parent := get_parent()
-		beacon.position = reward_parent.to_local(global_position)
-		reward_parent.call_deferred("add_child", beacon)
-
-	queue_free()
-
-
 #------------------ RETREAT ------------------
 
 func retreat():
@@ -152,33 +101,6 @@ func retreat():
 		retreat_direction = Vector2.RIGHT
 	retreating = true
 	stop_attacking()
-
-
-func apply_focused_light(_delta: float = 0.0) -> void:
-	_apply_light_slow(0.46, 0.24, Color(0.58, 0.83, 1.0))
-
-
-func apply_lighthouse_light(_delta: float = 0.0) -> void:
-	_apply_light_slow(0.82, 0.28, Color(0.9, 0.82, 0.58))
-
-
-func apply_ward_light(duration: float = 0.45) -> void:
-	_apply_light_slow(0.68, duration, Color(0.63, 0.83, 1.0))
-
-
-func apply_snare(duration: float) -> void:
-	if is_dead:
-		return
-	snare_timer = maxf(snare_timer, duration)
-	modulate = Color(0.43, 0.92, 0.83)
-
-
-func _apply_light_slow(multiplier: float, duration: float, tint: Color) -> void:
-	if is_dead or duration <= 0.0:
-		return
-	movement_slow_factor = minf(movement_slow_factor, clampf(multiplier, 0.1, 1.0))
-	slow_timer = maxf(slow_timer, duration)
-	modulate = tint
 
 
 func reached_veil():

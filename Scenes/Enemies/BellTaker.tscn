@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scenes/Enemies/BellTaker.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://Scenes/Beacon/Beacon.tscn" id="2_beacon"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bell_taker"]
+radius = 27.0
+
+[node name="BellTaker" type="CharacterBody2D" groups=["enemy"]]
+collision_layer = 8
+collision_mask = 3
+script = ExtResource("1_script")
+enemy_kind = &"bell_taker"
+max_health = 95
+beacon_scene = ExtResource("2_beacon")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bell_taker")

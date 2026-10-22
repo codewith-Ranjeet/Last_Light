@@ -4,6 +4,10 @@ extends Node2D
 @export var spawn_interval: float = 2.0
 @export var spawn_distance: float = 500.0
 
+const NIGHTSTALKER_SCENE: PackedScene = preload("res://Scenes/Enemies/Nightstalker.tscn")
+const LIGHT_LEECH_SCENE: PackedScene = preload("res://Scenes/Enemies/LightLeech.tscn")
+const ASHEN_BRUTE_SCENE: PackedScene = preload("res://Scenes/Enemies/AshenBrute.tscn")
+
 var timer: float = 0.0
 var can_spawn: bool = false
 
@@ -31,9 +35,31 @@ func spawn_enemy() -> void:
 	if enemy_scene == null or world == null:
 		return
 
-	var enemy = enemy_scene.instantiate()
+	var roster := get_roster_for_day(_current_day())
+	if roster.is_empty():
+		return
+	var scene: PackedScene = roster[randi_range(0, roster.size() - 1)]
+	var enemy = scene.instantiate()
 	world.add_child(enemy)
 	enemy.global_position = get_random_spawn_position()
+
+
+func get_roster_for_day(day: int) -> Array[PackedScene]:
+	var roster: Array[PackedScene] = []
+	if enemy_scene != null:
+		roster.append(enemy_scene)
+	if day >= 2:
+		roster.append(NIGHTSTALKER_SCENE)
+	if day >= 3:
+		roster.append(LIGHT_LEECH_SCENE)
+	if day >= 4:
+		roster.append(ASHEN_BRUTE_SCENE)
+	return roster
+
+
+func _current_day() -> int:
+	var manager := get_tree().get_first_node_in_group("campaign_manager")
+	return maxi(int(manager.day_number), 1) if manager != null else 1
 
 
 func get_random_spawn_position() -> Vector2:

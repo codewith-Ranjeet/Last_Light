@@ -22,6 +22,7 @@ As darkness engulfs the world, shadow creatures emerge every night to extinguish
 - Mouse aiming
 - Fireball shooting
 - Right-click focused light that aims at the cursor, consumes a regenerating Focus meter, and slows enemies in its cone
+- Focused light reveals Saltwood's Veil-blocked route and disrupts armored or light-suppressing enemies
 - Directional sprites
 - Interaction prompts for repairs and fixed build sites
 
@@ -36,6 +37,10 @@ As darkness engulfs the world, shadow creatures emerge every night to extinguish
 - Beacon drops on enemy death
 - Automatic beacon collection
 - Focused light and the nighttime lighthouse sweep slow Shadow Crawlers
+- Nightstalkers telegraph lunges at the Keeper
+- Light Leeches suppress the lighthouse sweep until focused light defeats them
+- Ashen Brutes resist ordinary fire until focused light exposes them, and attack defenses
+- The Bell-Taker telegraphs a darkness pulse in the Drowned Chapel
 
 ---
 
@@ -59,6 +64,14 @@ As darkness engulfs the world, shadow creatures emerge every night to extinguish
 - Snare Traps damage and briefly immobilize one enemy when triggered
 - Ward Lanterns create visible fields that slow nearby Shadow Crawlers
 - Press **E** near the Lighthouse to repair or near a build site to construct; repairs and construction are Day-only
+
+## 🧭 Expeditions
+
+- An expedition board in the Lighthouse Yard opens Shipbreaker Beach on Day 2, Saltwood Forest on Day 3, and Drowned Chapel on Day 4
+- Each map has a clear Prism Shard objective, an optional Salvage cache, a story clue, and an extraction point
+- Focused light reveals the forest route; defeating the Bell-Taker unlocks the chapel shard
+- Shards and recorded story clues remain in campaign state across world changes
+- Optional caches are never required to extract; dusk warnings and an automatic safe return prevent a stranded expedition
 
 ---
 
@@ -100,10 +113,11 @@ Current cycle:
 | 🌇 Dusk | Transition into darkness |
 | 🌙 Night | Enemy spawning begins |
 | 🌅 Dawn | Enemies retreat into the Veil |
+| 🧭 Expedition | Explore a daytime map, claim its shard, and extract to the Yard |
 
 ## Campaign Architecture
 
-`Main.tscn` remains loaded for the run. Its `GameManager` owns the current day and phase, Beacons, Salvage, secured shard IDs, upgrades, lens selection, and lighthouse health. The active location is instanced under `WorldContainer`, so replacing a world does not discard that campaign state. `Scenes/Worlds/LighthouseYard.tscn` is the current starting location.
+`Main.tscn` remains loaded for the run. Its `GameManager` owns the current day and phase, Beacons, Salvage, secured shard IDs, discovered story clues, player health, upgrades, lens selection, and lighthouse health. The active location is instanced under `WorldContainer`, so replacing a world does not discard that campaign state. `Scenes/Worlds/LighthouseYard.tscn` is the starting location; expedition controllers own their shard, extraction, and environment objectives.
 
 The prototype starts in Day 1 and follows Day → Dusk → Night → Dawn before advancing to the next day. The manager rejects invalid phase transitions, duplicate shard claims, insufficient resource spending, and repeated Game Over transitions.
 
@@ -126,6 +140,8 @@ The prototype starts in Day 1 and follows Day → Dusk → Night → Dawn before
 - Salvage counter
 - Focus meter
 - Current phase indicator
+- Current expedition objective and dusk warning
+- Keeper health and Prism Shard progress
 - Contextual interaction and cost prompts
 
 ---
@@ -138,7 +154,7 @@ The prototype starts in Day 1 and follows Day → Dusk → Night → Dawn before
 | **Mouse** | Aim |
 | **Left Click** | Shoot |
 | **Right Click (hold)** | Focus light toward the cursor |
-| **E** | Repair the Lighthouse or build at a nearby site |
+| **E** | Repair/build, depart or extract, or record a nearby story clue |
 
 ---
 
@@ -166,6 +182,7 @@ Scenes/
     Enemies/
     Effects/
     EnemySpawner/
+    Expeditions/
     GameManager/
     LightHouse/
     Player/
