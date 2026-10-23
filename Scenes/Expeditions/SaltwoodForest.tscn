@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="PackedScene" path="res://Scenes/Player/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://Scenes/Expeditions/ExpeditionController.gd" id="2_controller"]
@@ -8,6 +8,26 @@
 [ext_resource type="PackedScene" path="res://Scenes/Resources/SalvagePickup.tscn" id="6_salvage"]
 [ext_resource type="PackedScene" path="res://Scenes/Expeditions/ExpeditionObstacle.tscn" id="7_obstacle"]
 [ext_resource type="PackedScene" path="res://Scenes/Expeditions/VeilBarrier.tscn" id="8_barrier"]
+[ext_resource type="Texture2D" path="res://Assets/generated/forest_ground.png" id="9_ground"]
+[ext_resource type="Texture2D" path="res://Assets/generated/forest_path.png" id="10_path"]
+[ext_resource type="Texture2D" path="res://Assets/generated/forest_tree.png" id="11_tree"]
+[ext_resource type="Texture2D" path="res://Assets/generated/forest_tree_dead.png" id="12_deadtree"]
+[ext_resource type="Texture2D" path="res://Assets/generated/forest_roots.png" id="13_roots"]
+[ext_resource type="Texture2D" path="res://Assets/generated/forest_log.png" id="14_log"]
+[ext_resource type="Texture2D" path="res://Assets/generated/forest_rocks.png" id="15_rocks"]
+[ext_resource type="Texture2D" path="res://Assets/generated/forest_fern.png" id="16_fern"]
+
+[sub_resource type="Gradient" id="ForestMistGradient"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(0.48, 0.56, 0.5, 0.16, 0.48, 0.56, 0.5, 0)
+
+[sub_resource type="GradientTexture2D" id="ForestMistTexture"]
+gradient = SubResource("ForestMistGradient")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
 
 [node name="ExpeditionController" type="Node2D"]
 script = ExtResource("2_controller")
@@ -15,6 +35,272 @@ expedition_id = &"saltwood_forest"
 expedition_name = "Saltwood Forest"
 shard_id = &"saltwood_prism_shard"
 shard_name = "Second Prism Shard"
+
+[node name="Scenery" type="Node2D" parent="."]
+z_index = -1
+
+[node name="ForestFloor" type="Sprite2D" parent="Scenery"]
+z_index = -4
+texture_filter = 1
+texture_repeat = 2
+position = Vector2(-720, -430)
+texture = ExtResource("9_ground")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1440, 860)
+
+[node name="Trail" type="Polygon2D" parent="Scenery"]
+z_index = -3
+modulate = Color(0.72, 0.68, 0.6, 1)
+texture_filter = 1
+texture_repeat = 2
+texture = ExtResource("10_path")
+polygon = PackedVector2Array(-12, 360, -26, 250, -10, 150, -28, 40, -14, -70, -30, -180, -12, -290, -20, -360, 20, -360, 12, -290, 30, -180, 14, -70, 28, 40, 10, 150, 26, 250, 12, 360)
+
+[node name="MistNorth" type="Sprite2D" parent="Scenery"]
+z_index = -2
+texture_filter = 2
+position = Vector2(40, -320)
+scale = Vector2(4.6, 1.9)
+texture = SubResource("ForestMistTexture")
+
+[node name="MistWest" type="Sprite2D" parent="Scenery"]
+z_index = -2
+texture_filter = 2
+position = Vector2(-520, 40)
+scale = Vector2(2.4, 3.6)
+texture = SubResource("ForestMistTexture")
+
+[node name="MistEast" type="Sprite2D" parent="Scenery"]
+z_index = -2
+texture_filter = 2
+position = Vector2(520, 20)
+scale = Vector2(2.4, 3.6)
+texture = SubResource("ForestMistTexture")
+
+[node name="RootsW" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-210, 270)
+texture = ExtResource("13_roots")
+
+[node name="RootsE" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(225, 265)
+flip_h = true
+texture = ExtResource("13_roots")
+
+[node name="RootsN" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-370, -60)
+texture = ExtResource("13_roots")
+
+[node name="LogW" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-300, 120)
+rotation = 0.24
+texture = ExtResource("14_log")
+
+[node name="LogE" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(320, 140)
+rotation = -0.4
+flip_h = true
+texture = ExtResource("14_log")
+
+[node name="RocksSW" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-440, 235)
+texture = ExtResource("15_rocks")
+
+[node name="RocksSE" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(445, 228)
+flip_h = true
+texture = ExtResource("15_rocks")
+
+[node name="RocksNW" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-185, -255)
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("15_rocks")
+
+[node name="RocksNE" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(210, -262)
+scale = Vector2(0.85, 0.85)
+flip_h = true
+texture = ExtResource("15_rocks")
+
+[node name="FernW1" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-250, 325)
+texture = ExtResource("16_fern")
+
+[node name="FernE1" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(255, 325)
+flip_h = true
+texture = ExtResource("16_fern")
+
+[node name="FernW2" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-470, -25)
+texture = ExtResource("16_fern")
+
+[node name="FernE2" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(480, -45)
+flip_h = true
+texture = ExtResource("16_fern")
+
+[node name="FernW3" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-155, 225)
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("16_fern")
+
+[node name="FernE3" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(175, 235)
+scale = Vector2(0.9, 0.9)
+flip_h = true
+texture = ExtResource("16_fern")
+
+[node name="FernW4" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-515, 175)
+texture = ExtResource("16_fern")
+
+[node name="FernE4" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(520, 180)
+flip_h = true
+texture = ExtResource("16_fern")
+
+[node name="FernN1" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(-315, -215)
+texture = ExtResource("16_fern")
+
+[node name="FernN2" type="Sprite2D" parent="Scenery"]
+z_index = -1
+texture_filter = 1
+position = Vector2(345, -225)
+flip_h = true
+texture = ExtResource("16_fern")
+
+[node name="TreeTopA" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-330, -300)
+texture = ExtResource("11_tree")
+
+[node name="TreeTopB" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-120, -330)
+scale = Vector2(1.05, 1.05)
+texture = ExtResource("11_tree")
+
+[node name="TreeTopC" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(110, -325)
+scale = Vector2(1.05, 1.05)
+flip_h = true
+texture = ExtResource("11_tree")
+
+[node name="TreeTopD" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(340, -305)
+texture = ExtResource("11_tree")
+
+[node name="TreeWestA" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-520, 80)
+texture = ExtResource("11_tree")
+
+[node name="TreeWestB" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-500, 300)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("11_tree")
+
+[node name="TreeEastA" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(520, 60)
+flip_h = true
+texture = ExtResource("11_tree")
+
+[node name="TreeEastB" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(500, 300)
+scale = Vector2(1.1, 1.1)
+flip_h = true
+texture = ExtResource("11_tree")
+
+[node name="TreeWestC" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-330, 250)
+scale = Vector2(0.95, 0.95)
+texture = ExtResource("11_tree")
+
+[node name="TreeEastC" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(340, 255)
+scale = Vector2(0.95, 0.95)
+flip_h = true
+texture = ExtResource("11_tree")
+
+[node name="TreeObstacleW" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-245, 55)
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("11_tree")
+
+[node name="TreeObstacleE" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(246, 8)
+scale = Vector2(0.9, 0.9)
+flip_h = true
+texture = ExtResource("11_tree")
+
+[node name="TreeObstacleNW" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-286, -238)
+texture = ExtResource("11_tree")
+
+[node name="TreeObstacleNE" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(278, -248)
+flip_h = true
+texture = ExtResource("11_tree")
+
+[node name="DeadTreeW" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(-390, -135)
+texture = ExtResource("12_deadtree")
+
+[node name="DeadTreeE" type="Sprite2D" parent="Scenery"]
+texture_filter = 1
+position = Vector2(400, -150)
+flip_h = true
+texture = ExtResource("12_deadtree")
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector2(0, 190)

@@ -89,16 +89,17 @@ func notify_shard_secured() -> void:
 
 
 func _draw() -> void:
-	# Shipbreaker Beach paints its sea, sand and props with layered pixel-art
-	# scenery nodes in the scene file; keep the procedural ground fill for the
-	# other expeditions.
-	if expedition_id != &"shipbreaker_beach":
+	# Expeditions that paint their world with layered pixel-art scenery nodes in
+	# the scene file (Shipbreaker Beach, Saltwood Forest, Drowned Chapel) skip
+	# the procedural ground fill and prop drawing so the two never double up.
+	# The shared extraction marker below is always drawn by the controller.
+	if not has_node("Scenery"):
 		draw_rect(Rect2(-640, -360, 1280, 720), _ground_color(), true)
-	match expedition_id:
-		&"saltwood_forest":
-			_draw_forest()
-		&"drowned_chapel":
-			_draw_chapel()
+		match expedition_id:
+			&"saltwood_forest":
+				_draw_forest()
+			&"drowned_chapel":
+				_draw_chapel()
 	draw_line(Vector2(0, 238), Vector2(0, 170), Color(0.83, 0.72, 0.47, 0.65), 2.0, true)
 	draw_circle(Vector2(0, 160), 4.0, Color(0.97, 0.83, 0.54, 0.85))
 
