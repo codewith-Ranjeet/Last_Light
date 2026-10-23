@@ -8,11 +8,22 @@ extends StaticBody2D
 
 
 func _ready() -> void:
-	(collision_shape.shape as RectangleShape2D).size = obstacle_size
+	# Each obstacle gets its own shape: instances of this scene would otherwise
+	# share the one sub-resource, so every prop would collapse to whichever
+	# obstacle became ready last instead of using its own obstacle_size.
+	var rect := RectangleShape2D.new()
+	rect.size = obstacle_size
+	collision_shape.shape = rect
 	queue_redraw()
 
 
 func _draw() -> void:
+	# Expeditions that paint their props with layered pixel-art scenery nodes
+	# (Shipbreaker Beach, Saltwood Forest, Drowned Chapel) take their obstacle
+	# visuals from that artwork, so the procedural prop drawing is skipped to
+	# stop the two from double-drawing. The collision above is unaffected.
+	if _world_has_scenery():
+		return
 	match style:
 		"wreck":
 			_draw_wreck()
@@ -42,6 +53,17 @@ func _draw_pillar() -> void:
 	draw_rect(Rect2(-obstacle_size.x * 0.34, -obstacle_size.y * 0.5, obstacle_size.x * 0.68, obstacle_size.y), obstacle_color, true)
 	draw_rect(Rect2(-obstacle_size.x * 0.5, -obstacle_size.y * 0.5, obstacle_size.x, 8.0), obstacle_color.lightened(0.2), true)
 	draw_line(Vector2(-obstacle_size.x * 0.2, -obstacle_size.y * 0.3), Vector2(-obstacle_size.x * 0.2, obstacle_size.y * 0.4), obstacle_color.darkened(0.2), 2.0, true)
+
+
+func _world_has_scenery() -> bool:
+	# Mirrors ExpeditionController's guard: a "Scenery" subtree in the owning
+	# world means the artwork already draws this prop.
+	var node: Node = get_parent()
+	while node != null:
+		if node.has_node("Scenery"):
+			return true
+		node = node.get_parent()
+	return false
 
 
 func _draw_rock() -> void:

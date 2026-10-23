@@ -305,6 +305,20 @@ texture = ExtResource("12_deadtree")
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector2(0, 190)
 
+[node name="Camera2D" parent="Player" index="2"]
+limit_left = -720
+limit_right = 720
+limit_top = -430
+limit_bottom = 430
+
+[node name="ForestBounds" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ForestBounds"]
+build_mode = 1
+polygon = PackedVector2Array(-640, -390, -640, 390, 640, 390, 640, -390)
+
 [node name="ExpeditionExit" parent="." instance=ExtResource("3_exit")]
 position = Vector2(0, 130)
 
@@ -329,25 +343,25 @@ barrier_size = Vector2(320, 40)
 reveal_seconds = 1.15
 
 [node name="TreeWestFront" parent="." instance=ExtResource("7_obstacle")]
-position = Vector2(-245, 78)
-obstacle_size = Vector2(72, 120)
+position = Vector2(-237, 105)
+obstacle_size = Vector2(52, 56)
 obstacle_color = Color(0.25, 0.21, 0.15, 1)
 style = "tree"
 
 [node name="TreeEastFront" parent="." instance=ExtResource("7_obstacle")]
-position = Vector2(246, 26)
-obstacle_size = Vector2(80, 130)
+position = Vector2(254, 58)
+obstacle_size = Vector2(52, 56)
 obstacle_color = Color(0.17, 0.25, 0.16, 1)
 style = "tree"
 
 [node name="TreeWestDeep" parent="." instance=ExtResource("7_obstacle")]
-position = Vector2(-286, -218)
-obstacle_size = Vector2(84, 142)
+position = Vector2(-278, -188)
+obstacle_size = Vector2(52, 56)
 obstacle_color = Color(0.19, 0.28, 0.18, 1)
 style = "tree"
 
 [node name="TreeEastDeep" parent="." instance=ExtResource("7_obstacle")]
-position = Vector2(278, -228)
-obstacle_size = Vector2(90, 150)
+position = Vector2(286, -198)
+obstacle_size = Vector2(52, 56)
 obstacle_color = Color(0.22, 0.27, 0.17, 1)
 style = "tree"
